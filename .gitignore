@@ -3,4 +3,11 @@
 /_freeze/
 .Rproj.user
 .Rhistory
-**/*.quarto_ipynb
+**/.quarto_ipynb
+.RData
+.Rprofile
+renv/
+renv.lock
+index_files/
+styles.css
+styles.css.css
