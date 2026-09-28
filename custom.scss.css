@@ -1,0 +1,57 @@
+/*-- scss:defaults --*/
+
+// Paleta de colores académica profesional
+$primary: #1a3a5c;
+$secondary: #2c5f8a;
+$success: #1b7f5e;
+$info: #3d7ea6;
+
+// Tipografía: serif para el cuerpo académico + sans-serif para títulos
+$font-family-sans-serif: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+$font-family-serif: "Source Serif Pro", "Georgia", "Times New Roman", serif;
+$font-family-monospace: "JetBrains Mono", "Fira Code", monospace;
+
+$font-size-root: 16px;
+$line-height-base: 1.7;
+$h1-font-size: 2.2rem;
+$h2-font-size: 1.7rem;
+$h3-font-size: 1.35rem;
+$headings-font-weight: 600;
+$headings-color: $primary;
+
+$link-color: $secondary;
+$link-hover-color: $primary;
+
+$navbar-bg: $primary;
+$navbar-fg: #ffffff;
+$navbar-hl: #e8f0f8;
+
+/*-- scss:rules --*/
+
+// Subrayado sutil en títulos para reforzar el tono académico
+h2 {
+  border-bottom: 2px solid rgba($primary, 0.15);
+  padding-bottom: 0.4rem;
+  margin-top: 2.2rem;
+}
+
+// Espaciado entre párrafos
+p {
+  margin-bottom: 1.1rem;
+}
+
+// Estilo de cita textual (apropiado para citas académicas)
+blockquote {
+  border-left: 4px solid $secondary;
+  padding-left: 1.2rem;
+  color: #4a5568;
+  font-style: italic;
+  background: rgba($secondary, 0.04);
+  padding: 1rem 1.2rem;
+  border-radius: 0 6px 6px 0;
+}
+
+// Espaciado entre elementos de lista
+li {
+  margin-bottom: 0.35rem;
+}

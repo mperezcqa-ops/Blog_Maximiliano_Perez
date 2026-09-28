@@ -1,0 +1,19 @@
+---
+title: "Consumo de informaci?n en redes sociales durante crisis globales"
+author: "Maximiliano P?rez Cepeda"
+date: "2024-11-20"
+description: "Estudio sobre los patrones de consumo informativo en plataformas digitales durante contextos de crisis sanitaria y geopol?tica."
+categories: [Redes Sociales, Comportamiento del Consumidor, Crisis Globales]
+---
+
+## Resumen
+
+Este estudio analiza c?mo los usuarios consumen informaci?n en redes sociales durante crisis globales, con ?nfasis en los factores que determinan la confianza y la viralizaci?n.
+
+## Metodolog?a
+
+Dise?o mixto con encuestas a usuarios y an?lisis de contenido de publicaciones virales durante los per?odos 2020?2023.
+
+## Hallazgos principales
+
+Los resultados muestran que la credibilidad percibida de la fuente y la proximidad emocional del contenido son los dos predictores m?s fuertes de la viralizaci?n informativa en contextos de incertidumbre.

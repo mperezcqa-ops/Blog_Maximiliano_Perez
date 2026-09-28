@@ -1,0 +1,107 @@
+---
+title: "Investigaciones SCOPUS"
+subtitle: "Publicaciones de Alto Impacto en Revistas Indexadas"
+---
+
+Esta sección reúne mis artículos publicados en revistas indexadas en **SCOPUS** y **Web of Science (WoS)**. Cada entrada incluye el año de publicación, el título completo y el enlace directo al texto completo o a la ficha del artículo.
+
+::: callout-important
+Todas las publicaciones aquí listadas han sido sometidas a revisión por pares y cumplen con los estándares de calidad exigidos por las bases de datos SCOPUS y Web of Science.
+:::
+
+## Publicaciones indexadas
+
+::: {.callout-note icon="false"}
+### 2026
+
+**Robotic Process Automation Acceptance in Office Settings. A Revised UTAUT Model in Cosmetics Industry**
+
+[🔗 Ver artículo completo](https://link.springer.com/article/10.1007/s41347-026-00704-5){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2026
+
+**Use of artificial intelligence in Ecuadorian companies**
+
+[🔗 Ver artículo completo](https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2026.1814070/full){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2025
+
+**Information Consumption on Twitter in times of the Russia-Ukraine war**
+
+[🔗 Ver artículo completo](https://www.tandfonline.com/doi/full/10.1080/23311886.2025.2591451){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2025
+
+**AIDUA (artificial intelligence device use and acceptance) model to assess the acceptance of AI in the learning practices of higher education students**
+
+[🔗 Ver artículo completo](https://www.tandfonline.com/doi/full/10.1080/2331186X.2025.2560618){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2024
+
+**Youth criminal intentions under the scope of the theory of planned behavior**
+
+[🔗 Ver artículo completo](https://produccioncientificaluz.org/index.php/rcs/article/view/42827/50069){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2024
+
+**Russia Conflict on Twitter: Social factors and polarity on users' interactions**
+
+[🔗 Ver ficha en SCOPUS](https://www.scopus.com/record/display.uri?eid=2-s2.0-85195113481&origin=resultslist){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2023
+
+**Sociocultural Factors in Times of Global Crisis**
+
+[🔗 Ver artículo completo](https://www.igi-global.com/gateway/article/full-text-html/316868&riu=true){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2022
+
+**Sociocultural factors during COVID-19 pandemic: Information consumption on Twitter**
+
+[🔗 Ver artículo completo](https://www.sciencedirect.com/science/article/pii/S0148296321008158?dgcid=author){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2021
+
+**Refugee information consumption on Twitter**
+
+[🔗 Ver artículo completo](https://www.sciencedirect.com/science/article/pii/S0148296320306895?dgcid=author){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2020
+
+**The influence of ecuadorian homosexual subculture in the culture of consumption: A descriptive study about information consumption on twitter**
+
+[🔗 Ver artículo completo](https://www.tandfonline.com/doi/abs/10.1080/10496491.2020.1729317?journalCode=wjpm20){.btn .btn-primary target="_blank"}
+:::
+
+::: {.callout-note icon="false"}
+### 2016
+
+**EL ISO 9001 Y TQM EN LAS EMPRESAS DE ECUADOR**
+
+[🔗 Ver artículo completo](https://gcg.universia.net/article/view/2168/iso-9001-tqm-las-empresas-ecuador){.btn .btn-primary target="_blank"}
+:::
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+::: callout-note
+:::

@@ -1,0 +1,90 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Maximiliano Pérez Cepeda"
+  description: "Académico | Consultor Empresarial | Doctor en Administración Estratégica de Negocios"
+  site-url: "https://tu-usuario.github.io/Blog_Maximiliano_Perez/"
+  favicon: images/favicon.png
+
+  navbar:
+    background: "#1a3a5c"
+    foreground: "#ffffff"
+    search: true
+    left:
+      - text: "Inicio"
+        href: index.qmd
+      - text: "White Papers"
+        href: white-papers/index.qmd
+      - text: "SCOPUS"
+        href: scopus/index.qmd
+      - text: "Tutorías de Tesis"
+        href: tutorias/index.qmd
+      - text: "Libros Publicados"
+        href: libros/index.qmd
+    right:
+      - icon: linkedin
+        href: "https://linkedin.com/in/tu-perfil"
+      - icon: google
+        href: "https://scholar.google.com/citations?user=tu-id"
+      - icon: envelope
+        href: "mailto:maximiliano.perez@cu.ucsg.edu.ec"
+
+  page-footer:
+    background: "#1a3a5c"
+    foreground: "#ffffff"
+    center: |
+      © 2025 Maximiliano Pérez Cepeda — Doctor en Administración Estratégica de Negocios
+
+  sidebar:
+    - id: white-papers
+      title: "White Papers"
+      style: "docked"
+      search: true
+      contents:
+        - white-papers/index.qmd
+        - white-papers/*
+    - id: scopus
+      title: "Investigaciones SCOPUS"
+      style: "docked"
+      search: true
+      contents:
+        - scopus/index.qmd
+        - scopus/*
+    - id: tutorias
+      title: "Tutorías de Tesis"
+      style: "docked"
+      search: true
+      contents:
+        - tutorias/index.qmd
+        - section: "Anteproyecto"
+          contents:
+            - tutorias/anteproyecto.qmd
+        - section: "Tesis"
+          contents:
+            - tutorias/tesis.qmd
+    - id: libros
+      title: "Libros Publicados"
+      style: "docked"
+      search: true
+      contents:
+        - libros/index.qmd
+        - libros/*
+
+format:
+  html:
+    theme:
+      light: [flatly, custom.scss]
+      dark: [darkly, custom.scss]
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    fig-cap-location: bottom
+    respect-user-color-scheme: true
+
+lang: es
+
+execute:
+  freeze: auto
