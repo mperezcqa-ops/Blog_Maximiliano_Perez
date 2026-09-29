@@ -24,12 +24,27 @@ website:
       - text: "Libros Publicados"
         href: libros/index.qmd
     right:
-      - icon: linkedin
-        href: "https://linkedin.com/in/tu-perfil"
-      - icon: google
-        href: "https://scholar.google.com/citations?user=tu-id"
-      - icon: envelope
-        href: "mailto:maximiliano.perez@cu.ucsg.edu.ec"
+    - icon: linkedin
+      href: https://www.linkedin.com/in/maximiliano-perez-bb4a6834/
+      aria-label: LinkedIn
+    - icon: twitter-x
+      href: https://x.com/maxperezcepeda
+      aria-label: X (Twitter)
+    - icon: instagram
+      href: https://www.instagram.com/maxperezcepeda/
+      aria-label: Instagram
+    - icon: facebook
+      href: https://www.facebook.com/maxperezcepeda
+      aria-label: Facebook
+    - icon: person-badge
+      href: https://orcid.org/0000-0001-9145-7660
+      aria-label: ORCID
+    - icon: envelope
+      href: mailto:max-perez-cepeda@hotmail.com
+      aria-label: Correo
+    - icon: search
+      href: /search.html
+      aria-label: Buscar
 
   page-footer:
     background: "#1a3a5c"

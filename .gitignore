@@ -11,3 +11,4 @@ renv.lock
 index_files/
 styles.css
 styles.css.css
+**/*.quarto_ipynb
