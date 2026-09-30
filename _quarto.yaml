@@ -4,7 +4,7 @@ project:
 
 website:
   title: "Maximiliano Pérez Cepeda"
-  tracking-id: "G-SMKS032K3"
+  google-analytics: "G-Y2JEGT2H4E"
   description: "Académico | Consultor Empresarial | Doctor en Administración Estratégica de Negocios"
   site-url: "https://mperezcqa-ops.github.io/Blog_Maximiliano_Perez/"
   favicon: images/favicon.png
