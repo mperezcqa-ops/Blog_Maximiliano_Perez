@@ -25,33 +25,40 @@ website:
       - text: "Libros Publicados"
         href: libros/index.qmd
     right:
-    - icon: linkedin
-      href: https://www.linkedin.com/in/maximiliano-perez-bb4a6834/
-      aria-label: LinkedIn
-    - icon: twitter-x
-      href: https://x.com/maxperezcepeda
-      aria-label: X (Twitter)
-    - icon: instagram
-      href: https://www.instagram.com/maxperezcepeda/
-      aria-label: Instagram
-    - icon: facebook
-      href: https://www.facebook.com/maxperezcepeda
-      aria-label: Facebook
-    - icon: person-badge
-      href: https://orcid.org/0000-0001-9145-7660
-      aria-label: ORCID
-    - icon: envelope
-      href: mailto:max-perez-cepeda@hotmail.com
-      aria-label: Correo
-    - icon: search
-      href: /search.html
-      aria-label: Buscar
+      - icon: envelope-paper-heart
+        href: index.qmd
+        aria-label: "V - Voz del Cliente"
+      - icon: linkedin
+        href: https://www.linkedin.com/in/maximiliano-perez-bb4a6834/
+        aria-label: LinkedIn
+      - icon: twitter-x
+        href: https://x.com/maxperezcepeda
+        aria-label: X (Twitter)
+      - icon: instagram
+        href: https://www.instagram.com/maxperezcepeda/
+        aria-label: Instagram
+      - icon: facebook
+        href: https://www.facebook.com/maxperezcepeda
+        aria-label: Facebook
+      - icon: person-badge
+        href: https://orcid.org/0000-0001-9145-7660
+        aria-label: ORCID
+      - icon: envelope
+        href: mailto:max-perez-cepeda@hotmail.com
+        aria-label: Correo
 
   page-footer:
     background: "#1a3a5c"
     foreground: "#ffffff"
+    left: |
+      ![](images/logo-v-horizontal.png){width=100px}
     center: |
       © 2025 Maximiliano Pérez Cepeda — Doctor en Administración Estratégica de Negocios
+    right:
+      - icon: linkedin
+        href: https://www.linkedin.com/in/maximiliano-perez-bb4a6834/
+      - icon: envelope
+        href: mailto:max-perez-cepeda@hotmail.com
 
   sidebar:
     - id: white-papers

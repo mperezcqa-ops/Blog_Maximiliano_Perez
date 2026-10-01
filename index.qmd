@@ -1,35 +1,32 @@
 ---
-title: "Maximiliano Pérez Cepeda"
-about:
-  template: jolla
-  image: images/foto-perfil.jpg
-  image-width: 200px
-  image-shape: round
-  links:
-    - icon: linkedin
-      text: LinkedIn
-      href: "https://linkedin.com/in/tu-perfil"
-    - icon: google
-      text: Google Scholar
-      href: "https://scholar.google.com/citations?user=tu-id"
-    - icon: envelope
-      text: Correo
-      href: "mailto:maximiliano.perez@cu.ucsg.edu.ec"
+title: " "
+pagetitle: "Inicio - Maximiliano Pérez Cepeda"
+toc: false
 ---
 
+::::: columns
+::: {.column width="40%"}
+![](images/foto-perfil.jpg){fig-align="center" width="250"}
+:::
+
+::: {.column width="60%"}
 **Doctor en Administración Estratégica de Negocios** \| Académico e Investigador \| Consultor Empresarial
 
 Bienvenido a mi espacio de trabajo académico y profesional. Aquí comparto investigaciones aplicadas, publicaciones de alto impacto y materiales de apoyo para estudiantes de tesis.
 
-::: intro-card
-### Áreas de trabajo
+**Conéctate conmigo:**
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/maximiliano-perez-bb4a6834/) [![Google Scholar](https://img.shields.io/badge/Google_Scholar-4285F4?style=for-the-badge&logo=google-scholar&logoColor=white)](https://scholar.google.com/citations?user=tu-id) [![Correo](https://img.shields.io/badge/Correo-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:max-perez-cepeda@hotmail.com)
+:::
+:::::
+
+**Áreas de trabajo**
 
 - **White Papers** — Investigación aplicada para la práctica empresarial.
 - **Investigaciones SCOPUS** — Publicaciones arbitradas de alto impacto.
 - **Tutorías de Tesis** — Acompañamiento metodológico a estudiantes de grado y posgrado.
-:::
 
-## Perfil profesional
+**Perfil profesional**
 
 Profesional capacitado en la gestión y liderazgo de recursos para proyectos y servicios, enfocado en maximizar la rentabilidad y el valor añadido al núcleo del negocio. Sólida trayectoria en la dirección de equipos multidisciplinarios, fomentando la colaboración y el rendimiento óptimo en entornos de alta presión.
 
@@ -37,7 +34,7 @@ La orientación hacia el logro de metas se traduce en la capacidad para establec
 
 Comprometido con la excelencia y la innovación, busco constantemente oportunidades para optimizar procesos y contribuir al crecimiento sostenible de la organización.
 
-## Perfil académico
+**Perfil académico**
 
 Doctor en Administración Estratégica de Negocios por la Pontificia Universidad Católica del Perú – CENTRUM, con más de 15 años de experiencia en docencia universitaria de pregrado y posgrado en instituciones de alto prestigio. Mi carrera investigativa se caracteriza por una producción científica continua y de impacto internacional, con artículos publicados en revistas indexadas WoS y SCOPUS, así como ponencias en congresos académicos en Europa y América Latina.
 

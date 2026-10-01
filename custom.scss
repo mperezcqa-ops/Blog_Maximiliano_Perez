@@ -55,3 +55,13 @@ blockquote {
 li {
   margin-bottom: 0.35rem;
 }
+
+/* Ocultar el ítem "index.html" del navbar (Bootstrap 5) */
+.navbar-nav .nav-item .nav-link[href$="index.html"] {
+  display: none !important;
+}
+
+/* Alternativa: ocultar el contenedor completo del nav-item */
+.navbar-nav .nav-item:has(.nav-link[href$="index.html"]) {
+  display: none !important;
+}
