@@ -344,10 +344,9 @@ document.getElementById('form-voz-cliente').addEventListener('submit', function(
   mensajeDiv.className = 'form-mensaje';
 
       // Esperar a que reCAPTCHA esté listo
+
 function ejecutarRecaptcha() {
-  // TEMPORAL: Saltar reCAPTCHA en localhost
-  // El reCAPTCHA se activará automáticamente al publicar en GitHub Pages
-  
+  // En localhost, saltar reCAPTCHA
   var esLocalhost = window.location.hostname === 'localhost' || 
                     window.location.hostname === '127.0.0.1';
   
@@ -357,16 +356,39 @@ function ejecutarRecaptcha() {
     return;
   }
   
-  // En producción (GitHub Pages), usar reCAPTCHA
-  grecaptcha.ready(function() {
-    grecaptcha.execute(RECAPTCHA_SITE_KEY, {action: 'submit'}).then(function(token) {
-      document.getElementById('recaptchaToken').value = token;
-      enviarDatos(token);
-    }).catch(function(err) {
-      console.error('Error en reCAPTCHA:', err);
+  // En producción, cargar reCAPTCHA dinámicamente si no está
+  function esperarGrecaptcha(intentos) {
+    intentos = intentos || 0;
+    
+    if (typeof grecaptcha !== 'undefined' && grecaptcha.execute) {
+      // grecaptcha está listo
+      console.log('reCAPTCHA listo - generando token');
+      grecaptcha.ready(function() {
+        grecaptcha.execute(RECAPTCHA_SITE_KEY, {action: 'submit'}).then(function(token) {
+          document.getElementById('recaptchaToken').value = token;
+          enviarDatos(token);
+        }).catch(function(err) {
+          console.error('Error en reCAPTCHA:', err);
+          enviarDatos('sin-token');
+        });
+      });
+      return;
+    }
+    
+    if (intentos >= 20) {
+      console.error('reCAPTCHA no cargó después de 6 segundos');
       enviarDatos('sin-token');
-    });
-  });
+      return;
+    }
+    
+    console.log('Esperando reCAPTCHA... intento ' + intentos);
+    setTimeout(function() { esperarGrecaptcha(intentos + 1); }, 300);
+  }
+  
+  esperarGrecaptcha(0);
+}
+
+  
 }    function enviarDatos(token) {
       var datos = {
         nombres: document.getElementById('nombres').value,
