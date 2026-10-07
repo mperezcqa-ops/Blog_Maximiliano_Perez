@@ -371,7 +371,7 @@ function ejecutarRecaptcha() {
           console.error('Error en reCAPTCHA:', err);
           enviarDatos('sin-token');
         });
-      });
+
       return;
     }
     
@@ -383,11 +383,10 @@ function ejecutarRecaptcha() {
     
     console.log('Esperando reCAPTCHA... intento ' + intentos);
     setTimeout(function() { esperarGrecaptcha(intentos + 1); }, 300);
-  }
+ }
   
   esperarGrecaptcha(0);
-}
-
+}  
   
 }    function enviarDatos(token) {
       var datos = {
