@@ -353,16 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
     mensajeDiv.innerHTML = '';
     mensajeDiv.className = 'form-mensaje';
 
-    // TEMPORAL: Saltar reCAPTCHA en todas las páginas
-    // TODO: Reactivar cuando se resuelva el problema de carga en iframe
-    var skipRecaptcha = true;
-    
-    if (skipRecaptcha) {
-      console.log('Modo prueba: saltando reCAPTCHA');
-      enviarDatos('sin-token');
-      return;
-    }
-
     var intentos = 0;
     var maxIntentos = 20;
     
