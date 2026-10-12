@@ -1,0 +1,259 @@
+<script defer src="https://www.google.com/recaptcha/api.js?render=6LfKOeltAAAAAI0kCJqa3Kh0ppfCEJhfsz4FdJPp"></script>
+
+<style>
+.form-empresas {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+.form-empresas fieldset {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #fafafa;
+}
+.form-empresas legend {
+  font-weight: 700;
+  color: #1a3a5c;
+  padding: 0 0.75rem;
+  font-size: 1.1rem;
+}
+.form-empresas .form-group {
+  margin-bottom: 1rem;
+}
+.form-empresas label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  color: #333;
+}
+.form-empresas input,
+.form-empresas select,
+.form-empresas textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.form-empresas input:focus,
+.form-empresas select:focus {
+  outline: none;
+  border-color: #c9a961;
+  box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.2);
+}
+.form-empresas small {
+  display: block;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+.form-empresas .checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.form-empresas .checkbox-group input {
+  width: auto;
+  margin-top: 0.3rem;
+}
+.form-empresas .btn-enviar {
+  background: #1a3a5c;
+  color: white;
+  border: none;
+  padding: 1rem 3rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+.form-empresas .btn-enviar:hover {
+  background: #c9a961;
+  color: #1a3a5c;
+}
+.form-empresas .btn-enviar:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+.form-empresas .form-mensaje {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+}
+.form-empresas .form-mensaje.exito {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+.form-empresas .form-mensaje.error {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+</style>
+
+<form id="form-empresas" class="form-empresas">
+
+<fieldset>
+<legend>🏢 Datos de la Empresa</legend>
+
+<div class="form-group">
+<label for="empresaNombre">Nombre de la Empresa *</label>
+<input type="text" id="empresaNombre" name="empresaNombre" required placeholder="Ej: Banco Pichincha">
+</div>
+
+<div class="form-group">
+<label for="empresaEmail1">Email 1 (Gerente) *</label>
+<input type="email" id="empresaEmail1" name="empresaEmail1" required placeholder="gerente@empresa.com">
+</div>
+
+<div class="form-group">
+<label for="empresaEmail2">Email 2 (Calidad o Atención al Cliente)</label>
+<input type="email" id="empresaEmail2" name="empresaEmail2" placeholder="calidad@empresa.com">
+<small>Opcional. Se usará para enviar copia de las quejas.</small>
+</div>
+
+<div class="form-group">
+<label for="empresaSector">Sector *</label>
+<select id="empresaSector" name="empresaSector" required>
+<option value="">Selecciona un sector</option>
+<option value="Banca">Banca y Finanzas</option>
+<option value="Retail">Retail y Comercio</option>
+<option value="Telecomunicaciones">Telecomunicaciones</option>
+<option value="Servicios">Servicios</option>
+<option value="Manufactura">Manufactura</option>
+<option value="Salud">Salud</option>
+<option value="Educación">Educación</option>
+<option value="Gobierno">Gobierno</option>
+<option value="Otro">Otro</option>
+</select>
+</div>
+
+<div class="form-group">
+<label for="empresaPais">País *</label>
+<select id="empresaPais" name="empresaPais" required>
+<option value="">Selecciona un país</option>
+<option value="Ecuador">Ecuador</option>
+<option value="Colombia">Colombia</option>
+<option value="Perú">Perú</option>
+<option value="Chile">Chile</option>
+<option value="Argentina">Argentina</option>
+<option value="México">México</option>
+<option value="España">España</option>
+<option value="Estados Unidos">Estados Unidos</option>
+<option value="Otro">Otro</option>
+</select>
+</div>
+
+<div class="form-group">
+<label for="empresaCiudad">Ciudad *</label>
+<input type="text" id="empresaCiudad" name="empresaCiudad" required placeholder="Ej: Guayaquil">
+</div>
+
+</fieldset>
+
+<fieldset>
+<legend>💳 Comprobante de Pago ($2)</legend>
+
+<div class="form-group">
+<label for="comprobante">Adjuntar comprobante de transferencia *</label>
+<input type="file" id="comprobante" name="comprobante" accept="image/*,application/pdf" required>
+<small>Sube una foto o PDF del comprobante de la transferencia de $2.</small>
+</div>
+
+</fieldset>
+
+<fieldset>
+<legend>📧 Confirmación</legend>
+
+<div class="form-group">
+<label for="emailContacto">Correo de contacto *</label>
+<input type="email" id="emailContacto" name="emailContacto" required placeholder="contacto@empresa.com">
+<small>Aquí te enviaremos la confirmación del registro.</small>
+</div>
+
+<div class="form-group checkbox-group">
+<input type="checkbox" id="terminos" name="terminos" required>
+<label for="terminos">Acepto los términos y condiciones del servicio. *</label>
+</div>
+
+<div class="form-group checkbox-group">
+<input type="checkbox" id="autorizacion" name="autorizacion" required>
+<label for="autorizacion">Autorizo el tratamiento de mis datos personales según la LOPDP. *</label>
+</div>
+
+</fieldset>
+
+<button type="submit" id="btn-enviar-empresa" class="btn-enviar">🏢 Registrar mi Empresa</button>
+
+<div id="form-empresas-mensaje" class="form-mensaje"></div>
+
+<input type="hidden" id="recaptchaTokenEmpresa" name="recaptchaTokenEmpresa">
+
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwezaqB_ke-mpxmaXdWUTWD68KUa9PUDPyS4xph4Rhc66SV2UZ2FcP5GS2hnqFKawps/exec";
+
+  document.getElementById('form-empresas').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btnEnviar = document.getElementById('btn-enviar-empresa');
+    var mensajeDiv = document.getElementById('form-empresas-mensaje');
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = '⏳ Enviando...';
+    mensajeDiv.innerHTML = '';
+    mensajeDiv.className = 'form-mensaje';
+
+    var datos = {
+      accion: 'registrarEmpresa',
+      empresaNombre: document.getElementById('empresaNombre').value,
+      empresaEmail1: document.getElementById('empresaEmail1').value,
+      empresaEmail2: document.getElementById('empresaEmail2').value,
+      empresaSector: document.getElementById('empresaSector').value,
+      empresaPais: document.getElementById('empresaPais').value,
+      empresaCiudad: document.getElementById('empresaCiudad').value,
+      emailContacto: document.getElementById('emailContacto').value,
+      comprobante: document.getElementById('comprobante').files[0] ? document.getElementById('comprobante').files[0].name : 'sin-comprobante'
+    };
+
+    var params = [];
+    for (var key in datos) {
+      if (datos.hasOwnProperty(key)) {
+        params.push(encodeURIComponent(key) + '=' + encodeURIComponent(datos[key]));
+      }
+    }
+    var urlCompleta = APPS_SCRIPT_URL + '?' + params.join('&');
+
+    fetch(urlCompleta, {
+      method: 'GET',
+      mode: 'no-cors'
+    })
+    .then(function() {
+      mensajeDiv.className = 'form-mensaje exito';
+      mensajeDiv.innerHTML = '<h3>✅ ¡Solicitud enviada!</h3>' +
+        '<p>Hemos recibido tu solicitud de registro. En un plazo máximo de 24 horas recibirás una confirmación en <strong>' + datos.emailContacto + '</strong>.</p>' +
+        '<p>Si tienes dudas, escríbenos a <strong>max-perez-cepeda@hotmail.com</strong>.</p>';
+      document.getElementById('form-empresas').reset();
+    })
+    .catch(function(error) {
+      mensajeDiv.className = 'form-mensaje error';
+      mensajeDiv.innerHTML = '<h3>❌ Error al enviar</h3>' +
+        '<p>Ha ocurrido un error. Por favor, inténtalo de nuevo o escríbenos directamente a <strong>max-perez-cepeda@hotmail.com</strong>.</p>';
+      console.error('Error:', error);
+    })
+    .finally(function() {
+      btnEnviar.disabled = false;
+      btnEnviar.textContent = '🏢 Registrar mi Empresa';
+    });
+  });
+
+});
+</script>
