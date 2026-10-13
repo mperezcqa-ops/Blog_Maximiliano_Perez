@@ -96,6 +96,53 @@
   border: 1px solid #f5c6cb;
   color: #721c24;
 }
+
+/* Autocompletado */
+.autocomplete-container {
+  position: relative;
+}
+.autocomplete-sugerencias {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.sugerencia-item {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+.sugerencia-item:hover {
+  background: #f5f5f5;
+}
+.empresa-mensaje {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  display: none;
+}
+.empresa-mensaje.registrada {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  display: block;
+}
+.empresa-mensaje.nueva {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+  display: block;
+}
 </style>
 
 <form id="form-empresas" class="form-empresas">
@@ -103,9 +150,11 @@
 <fieldset>
 <legend>🏢 Datos de la Empresa</legend>
 
-<div class="form-group">
+<div class="form-group autocomplete-container">
 <label for="empresaNombre">Nombre de la Empresa *</label>
-<input type="text" id="empresaNombre" name="empresaNombre" required placeholder="Ej: Banco Pichincha">
+<input type="text" id="empresaNombre" name="empresaNombre" required autocomplete="off" placeholder="Empieza a escribir el nombre...">
+<div id="empresa-sugerencias" class="autocomplete-sugerencias"></div>
+<div id="empresa-mensaje" class="empresa-mensaje"></div>
 </div>
 
 <div class="form-group">
@@ -203,14 +252,82 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwezaqB_ke-mpxmaXdWUTWD68KUa9PUDPyS4xph4Rhc66SV2UZ2FcP5GS2hnqFKawps/exec";
 
+  // ============================================
+  // AUTOCOMPLETADO DE EMPRESAS
+  // ============================================
+  var inputEmpresa = document.getElementById('empresaNombre');
+  var sugerenciasDiv = document.getElementById('empresa-sugerencias');
+  var mensajeDiv = document.getElementById('empresa-mensaje');
+  var timeoutId = null;
+
+  inputEmpresa.addEventListener('input', function() {
+    var query = this.value.trim();
+    if (timeoutId) clearTimeout(timeoutId);
+    if (query.length < 3) {
+      sugerenciasDiv.innerHTML = '';
+      sugerenciasDiv.style.display = 'none';
+      mensajeDiv.className = 'empresa-mensaje';
+      mensajeDiv.innerHTML = '';
+      return;
+    }
+    timeoutId = setTimeout(function() { buscarEmpresas(query); }, 300);
+  });
+
+  function buscarEmpresas(query) {
+    var url = APPS_SCRIPT_URL + '?accion=buscarEmpresas&q=' + encodeURIComponent(query);
+    fetch(url)
+      .then(function(response) { return response.json(); })
+      .then(function(resultados) {
+        if (resultados.length === 0) {
+          sugerenciasDiv.innerHTML = '';
+          sugerenciasDiv.style.display = 'none';
+          return;
+        }
+        var html = '';
+        for (var i = 0; i < resultados.length; i++) {
+          html += '<div class="sugerencia-item" data-empresa="' + resultados[i].empresa + '">' + resultados[i].empresa + '</div>';
+        }
+        sugerenciasDiv.innerHTML = html;
+        sugerenciasDiv.style.display = 'block';
+        
+        var items = document.querySelectorAll('.sugerencia-item');
+        for (var j = 0; j < items.length; j++) {
+          items[j].addEventListener('click', function() {
+            inputEmpresa.value = this.dataset.empresa;
+            sugerenciasDiv.innerHTML = '';
+            sugerenciasDiv.style.display = 'none';
+            marcarComoRegistrada(this.dataset.empresa);
+          });
+        }
+      })
+      .catch(function(error) {
+        console.error('Error al buscar empresas:', error);
+      });
+  }
+
+  function marcarComoRegistrada(nombre) {
+    mensajeDiv.className = 'empresa-mensaje registrada';
+    mensajeDiv.innerHTML = '⚠️ <strong>' + nombre + '</strong> ya está registrada en el sistema. Si actualizas sus correos, se aplicará el cobro de $2.';
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.autocomplete-container')) {
+      sugerenciasDiv.innerHTML = '';
+      sugerenciasDiv.style.display = 'none';
+    }
+  });
+
+  // ============================================
+  // ENVÍO DEL FORMULARIO
+  // ============================================
   document.getElementById('form-empresas').addEventListener('submit', function(e) {
     e.preventDefault();
     var btnEnviar = document.getElementById('btn-enviar-empresa');
-    var mensajeDiv = document.getElementById('form-empresas-mensaje');
+    var mensajeFormDiv = document.getElementById('form-empresas-mensaje');
     btnEnviar.disabled = true;
     btnEnviar.textContent = '⏳ Enviando...';
-    mensajeDiv.innerHTML = '';
-    mensajeDiv.className = 'form-mensaje';
+    mensajeFormDiv.innerHTML = '';
+    mensajeFormDiv.className = 'form-mensaje';
 
     var datos = {
       accion: 'registrarEmpresa',
@@ -237,15 +354,17 @@ document.addEventListener('DOMContentLoaded', function() {
       mode: 'no-cors'
     })
     .then(function() {
-      mensajeDiv.className = 'form-mensaje exito';
-      mensajeDiv.innerHTML = '<h3>✅ ¡Solicitud enviada!</h3>' +
-        '<p>Hemos recibido tu solicitud de registro. En un plazo máximo de 24 horas recibirás una confirmación en <strong>' + datos.emailContacto + '</strong>.</p>' +
+      mensajeFormDiv.className = 'form-mensaje exito';
+      mensajeFormDiv.innerHTML = '<h3>✅ ¡Solicitud enviada!</h3>' +
+        '<p>Hemos recibido tu solicitud. En un plazo máximo de 24 horas recibirás una confirmación en <strong>' + datos.emailContacto + '</strong>.</p>' +
         '<p>Si tienes dudas, escríbenos a <strong>mperezcqa@gmail.com</strong>.</p>';
       document.getElementById('form-empresas').reset();
+      mensajeDiv.className = 'empresa-mensaje';
+      mensajeDiv.innerHTML = '';
     })
     .catch(function(error) {
-      mensajeDiv.className = 'form-mensaje error';
-      mensajeDiv.innerHTML = '<h3>❌ Error al enviar</h3>' +
+      mensajeFormDiv.className = 'form-mensaje error';
+      mensajeFormDiv.innerHTML = '<h3>❌ Error al enviar</h3>' +
         '<p>Ha ocurrido un error. Por favor, inténtalo de nuevo o escríbenos directamente a <strong>mperezcqa@gmail.com</strong>.</p>';
       console.error('Error:', error);
     })
