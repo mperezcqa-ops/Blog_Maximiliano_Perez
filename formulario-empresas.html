@@ -240,13 +240,13 @@ document.addEventListener('DOMContentLoaded', function() {
       mensajeDiv.className = 'form-mensaje exito';
       mensajeDiv.innerHTML = '<h3>✅ ¡Solicitud enviada!</h3>' +
         '<p>Hemos recibido tu solicitud de registro. En un plazo máximo de 24 horas recibirás una confirmación en <strong>' + datos.emailContacto + '</strong>.</p>' +
-        '<p>Si tienes dudas, escríbenos a <strong>max-perez-cepeda@hotmail.com</strong>.</p>';
+        '<p>Si tienes dudas, escríbenos a <strong>mperezcqa@gmail.com</strong>.</p>';
       document.getElementById('form-empresas').reset();
     })
     .catch(function(error) {
       mensajeDiv.className = 'form-mensaje error';
       mensajeDiv.innerHTML = '<h3>❌ Error al enviar</h3>' +
-        '<p>Ha ocurrido un error. Por favor, inténtalo de nuevo o escríbenos directamente a <strong>max-perez-cepeda@hotmail.com</strong>.</p>';
+        '<p>Ha ocurrido un error. Por favor, inténtalo de nuevo o escríbenos directamente a <strong>mperezcqa@gmail.com</strong>.</p>';
       console.error('Error:', error);
     })
     .finally(function() {
