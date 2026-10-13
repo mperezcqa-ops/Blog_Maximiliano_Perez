@@ -143,6 +143,19 @@
   border: 1px solid #bee5eb;
   display: block;
 }
+.btn-cambiar {
+  background: #c9a961;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.btn-cambiar:hover {
+  background: #b89850;
+}
 </style>
 
 <form id="form-empresas" class="form-empresas">
@@ -151,8 +164,11 @@
 <legend>🏢 Datos de la Empresa</legend>
 
 <div class="form-group autocomplete-container">
-<label for="empresaNombre">Nombre de la Empresa *</label>
-<input type="text" id="empresaNombre" name="empresaNombre" required autocomplete="off" placeholder="Empieza a escribir el nombre...">
+<label for="empresaNombre">Nombre de la Razón Social de la Empresa *</label>
+<div style="display: flex; gap: 0.5rem; align-items: center;">
+<input type="text" id="empresaNombre" name="empresaNombre" required autocomplete="off" placeholder="Empieza a escribir el nombre..." style="flex: 1;">
+<button type="button" id="btn-cambiar-empresa" class="btn-cambiar" style="display: none;">Cambiar</button>
+</div>
 <div id="empresa-sugerencias" class="autocomplete-sugerencias"></div>
 <div id="empresa-mensaje" class="empresa-mensaje"></div>
 </div>
@@ -229,12 +245,12 @@
 
 <div class="form-group checkbox-group">
 <input type="checkbox" id="terminos" name="terminos" required>
-<label for="terminos">Acepto los términos y condiciones del servicio. *</label>
+<label for="terminos">Acepto los términos y condiciones del servicio Voz del Cliente — Visible. *</label>
 </div>
 
 <div class="form-group checkbox-group">
 <input type="checkbox" id="autorizacion" name="autorizacion" required>
-<label for="autorizacion">Autorizo el tratamiento de mis datos personales según la LOPDP. *</label>
+<label for="autorizacion">Autorizo el tratamiento de mis datos personales conforme a la Ley Orgánica de Protección de Datos Personales (LOPDP). *</label>
 </div>
 
 </fieldset>
@@ -253,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwezaqB_ke-mpxmaXdWUTWD68KUa9PUDPyS4xph4Rhc66SV2UZ2FcP5GS2hnqFKawps/exec";
 
   // ============================================
-  // AUTOCOMPLETADO DE EMPRESAS
+  // VARIABLES GLOBALES
   // ============================================
   var inputEmpresa = document.getElementById('empresaNombre');
   var sugerenciasDiv = document.getElementById('empresa-sugerencias');
@@ -261,6 +277,9 @@ document.addEventListener('DOMContentLoaded', function() {
   var timeoutId = null;
   var empresaSeleccionada = false;
 
+  // ============================================
+  // AUTOCOMPLETADO DE EMPRESAS
+  // ============================================
   inputEmpresa.addEventListener('input', function() {
     var query = this.value.trim();
     if (timeoutId) clearTimeout(timeoutId);
@@ -336,6 +355,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Actualizar el texto del botón
     document.getElementById('btn-enviar-empresa').textContent = '🔄 Actualizar Correos ($2)';
+    
+    // Mostrar botón "Cambiar"
+    document.getElementById('btn-cambiar-empresa').style.display = 'block';
   }
 
   function restaurarFormulario() {
@@ -356,6 +378,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Restaurar botón
     document.getElementById('btn-enviar-empresa').textContent = '🏢 Registrar mi Empresa';
     
+    // Ocultar botón "Cambiar"
+    document.getElementById('btn-cambiar-empresa').style.display = 'none';
+    
     // Limpiar mensaje
     mensajeDiv.className = 'empresa-mensaje';
     mensajeDiv.innerHTML = '';
@@ -366,6 +391,21 @@ document.addEventListener('DOMContentLoaded', function() {
       sugerenciasDiv.innerHTML = '';
       sugerenciasDiv.style.display = 'none';
     }
+  });
+
+  // ============================================
+  // BOTÓN "CAMBIAR" EMPRESA
+  // ============================================
+  document.getElementById('btn-cambiar-empresa').addEventListener('click', function() {
+    // Limpiar el campo de nombre
+    document.getElementById('empresaNombre').value = '';
+    document.getElementById('empresaNombre').focus();
+    
+    // Restaurar el formulario
+    restaurarFormulario();
+    
+    // Marcar como no seleccionada
+    empresaSeleccionada = false;
   });
 
   // ============================================
