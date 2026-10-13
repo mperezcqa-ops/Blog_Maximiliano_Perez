@@ -168,7 +168,7 @@
 <small>Opcional. Se usará para enviar copia de las quejas.</small>
 </div>
 
-<div class="form-group">
+<div class="form-group" id="group-sector">
 <label for="empresaSector">Sector *</label>
 <select id="empresaSector" name="empresaSector" required>
 <option value="">Selecciona un sector</option>
@@ -184,7 +184,7 @@
 </select>
 </div>
 
-<div class="form-group">
+<div class="form-group" id="group-pais">
 <label for="empresaPais">País *</label>
 <select id="empresaPais" name="empresaPais" required>
 <option value="">Selecciona un país</option>
@@ -200,7 +200,7 @@
 </select>
 </div>
 
-<div class="form-group">
+<div class="form-group" id="group-ciudad">
 <label for="empresaCiudad">Ciudad *</label>
 <input type="text" id="empresaCiudad" name="empresaCiudad" required placeholder="Ej: Guayaquil">
 </div>
@@ -259,10 +259,18 @@ document.addEventListener('DOMContentLoaded', function() {
   var sugerenciasDiv = document.getElementById('empresa-sugerencias');
   var mensajeDiv = document.getElementById('empresa-mensaje');
   var timeoutId = null;
+  var empresaSeleccionada = false;
 
   inputEmpresa.addEventListener('input', function() {
     var query = this.value.trim();
     if (timeoutId) clearTimeout(timeoutId);
+    
+    // Si el usuario modifica el nombre después de seleccionar, restaurar
+    if (empresaSeleccionada) {
+      restaurarFormulario();
+      empresaSeleccionada = false;
+    }
+    
     if (query.length < 3) {
       sugerenciasDiv.innerHTML = '';
       sugerenciasDiv.style.display = 'none';
@@ -306,8 +314,51 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function marcarComoRegistrada(nombre) {
+    empresaSeleccionada = true;
+    
+    // Mostrar mensaje
     mensajeDiv.className = 'empresa-mensaje registrada';
-    mensajeDiv.innerHTML = '⚠️ <strong>' + nombre + '</strong> ya está registrada en el sistema. Si actualizas sus correos, se aplicará el cobro de $2.';
+    mensajeDiv.innerHTML = '⚠️ <strong>' + nombre + '</strong> ya está registrada. Solo actualiza los correos.';
+    
+    // Ocultar campos que ya conocemos
+    document.getElementById('group-sector').style.display = 'none';
+    document.getElementById('group-pais').style.display = 'none';
+    document.getElementById('group-ciudad').style.display = 'none';
+    
+    // Quitar required de los campos ocultos
+    document.getElementById('empresaSector').required = false;
+    document.getElementById('empresaPais').required = false;
+    document.getElementById('empresaCiudad').required = false;
+    
+    // Hacer el nombre readonly
+    document.getElementById('empresaNombre').readOnly = true;
+    document.getElementById('empresaNombre').style.backgroundColor = '#f0f0f0';
+    
+    // Actualizar el texto del botón
+    document.getElementById('btn-enviar-empresa').textContent = '🔄 Actualizar Correos ($2)';
+  }
+
+  function restaurarFormulario() {
+    // Mostrar campos
+    document.getElementById('group-sector').style.display = 'block';
+    document.getElementById('group-pais').style.display = 'block';
+    document.getElementById('group-ciudad').style.display = 'block';
+    
+    // Restaurar required
+    document.getElementById('empresaSector').required = true;
+    document.getElementById('empresaPais').required = true;
+    document.getElementById('empresaCiudad').required = true;
+    
+    // Quitar readonly
+    document.getElementById('empresaNombre').readOnly = false;
+    document.getElementById('empresaNombre').style.backgroundColor = '';
+    
+    // Restaurar botón
+    document.getElementById('btn-enviar-empresa').textContent = '🏢 Registrar mi Empresa';
+    
+    // Limpiar mensaje
+    mensajeDiv.className = 'empresa-mensaje';
+    mensajeDiv.innerHTML = '';
   }
 
   document.addEventListener('click', function(e) {
@@ -359,8 +410,8 @@ document.addEventListener('DOMContentLoaded', function() {
         '<p>Hemos recibido tu solicitud. En un plazo máximo de 24 horas recibirás una confirmación en <strong>' + datos.emailContacto + '</strong>.</p>' +
         '<p>Si tienes dudas, escríbenos a <strong>mperezcqa@gmail.com</strong>.</p>';
       document.getElementById('form-empresas').reset();
-      mensajeDiv.className = 'empresa-mensaje';
-      mensajeDiv.innerHTML = '';
+      restaurarFormulario();
+      empresaSeleccionada = false;
     })
     .catch(function(error) {
       mensajeFormDiv.className = 'form-mensaje error';
@@ -370,7 +421,9 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .finally(function() {
       btnEnviar.disabled = false;
-      btnEnviar.textContent = '🏢 Registrar mi Empresa';
+      if (!empresaSeleccionada) {
+        btnEnviar.textContent = '🏢 Registrar mi Empresa';
+      }
     });
   });
 
