@@ -238,12 +238,17 @@
 </fieldset>
 
 <fieldset>
-<legend>💳 Comprobante de Pago ($2)</legend>
+<legend>💳 Pago de $2</legend>
 
-<div class="form-group">
-<label for="comprobante">Adjuntar comprobante de transferencia *</label>
-<input type="file" id="comprobante" name="comprobante" accept="image/*,application/pdf" required>
-<small>Sube una foto o PDF del comprobante de la transferencia de $2.</small>
+<div class="form-group" style="background: #fff3cd; padding: 1rem; border-radius: 6px; border-left: 4px solid #ffc107;">
+<label style="font-weight: 600; color: #856404;">📧 Recibirás un correo de confirmación</label>
+<p style="margin: 0.5rem 0 0 0; color: #856404;">
+Una vez enviada tu solicitud, recibirás un correo en <strong>el correo de contacto que proporciones</strong>. 
+<br><br>
+Para completar el registro, <strong>responde a ese correo adjuntando el comprobante de transferencia de $2</strong> a la cuenta indicada en la página.
+<br><br>
+Sin el comprobante adjunto, no podremos procesar tu solicitud.
+</p>
 </div>
 
 </fieldset>
@@ -434,17 +439,17 @@ document.addEventListener('DOMContentLoaded', function() {
     mensajeFormDiv.innerHTML = '';
     mensajeFormDiv.className = 'form-mensaje';
 
-    var datos = {
-      accion: 'registrarEmpresa',
-      empresaNombre: document.getElementById('empresaNombre').value,
-      empresaEmail1: document.getElementById('empresaEmail1').value,
-      empresaEmail2: document.getElementById('empresaEmail2').value,
-      empresaSector: document.getElementById('empresaSector').value,
-      empresaPais: document.getElementById('empresaPais').value,
-      empresaCiudad: document.getElementById('empresaCiudad').value,
-      emailContacto: document.getElementById('emailContacto').value,
-      comprobante: document.getElementById('comprobante').files[0] ? document.getElementById('comprobante').files[0].name : 'sin-comprobante'
-    };
+var datos = {
+  accion: 'registrarEmpresa',
+  empresaNombre: document.getElementById('empresaNombre').value,
+  empresaEmail1: document.getElementById('empresaEmail1').value,
+  empresaEmail2: document.getElementById('empresaEmail2').value,
+  empresaSector: document.getElementById('empresaSector').value,
+  empresaPais: document.getElementById('empresaPais').value,
+  empresaCiudad: document.getElementById('empresaCiudad').value,
+  emailContacto: document.getElementById('emailContacto').value,
+  comprobante: 'pendiente-de-envio'
+};
 
     var params = [];
     for (var key in datos) {
