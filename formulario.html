@@ -363,15 +363,14 @@ document.addEventListener('DOMContentLoaded', function() {
     mensajeDiv.innerHTML = '';
     mensajeDiv.className = 'form-mensaje';
 
-  // TEMPORAL: Saltar reCAPTCHA en todas las páginas
-  // TODO: Reactivar cuando se resuelva el problema de iframe
-  var skipRecaptcha = true;
-  
-  if (skipRecaptcha) {
-    console.log('Modo prueba: saltando reCAPTCHA');
-    enviarDatos('sin-token');
-    return;
-  }
+    // TEMPORAL: Saltar reCAPTCHA en todas las páginas
+    var skipRecaptcha = true;
+    
+    if (skipRecaptcha) {
+      console.log('Modo prueba: saltando reCAPTCHA');
+      enviarDatos('sin-token');
+      return;
+    }
 
     var intentos = 0;
     var maxIntentos = 20;
@@ -405,9 +404,21 @@ document.addEventListener('DOMContentLoaded', function() {
     esperarGrecaptcha();
   });
 
+  // ============================================
+  // FUNCIÓN DE ENVÍO CON CAPTURA DE DATOS INTERNOS
+  // ============================================
   function enviarDatos(token) {
     var btnEnviar = document.getElementById('btn-enviar');
     var mensajeDiv = document.getElementById('form-mensaje');
+    
+    // NUEVO: Captura de datos internos del dispositivo
+    var datosInternos = {
+      userAgent: navigator.userAgent || 'No disponible',
+      idioma: navigator.language || 'No disponible',
+      plataforma: navigator.platform || 'No disponible',
+      resolucion: screen.width + 'x' + screen.height,
+      zonaHoraria: (Intl.DateTimeFormat().resolvedOptions().timeZone) || 'No disponible'
+    };
     
     var datos = {
       nombres: document.getElementById('nombres').value,
@@ -422,7 +433,13 @@ document.addEventListener('DOMContentLoaded', function() {
       ciudad: document.getElementById('ciudad').value,
       queja: document.getElementById('queja').value,
       recomendacion: document.getElementById('recomendacion').value,
-      recaptchaToken: token
+      recaptchaToken: token,
+      // NUEVO: Agregar datos internos al payload
+      userAgent: datosInternos.userAgent,
+      idioma: datosInternos.idioma,
+      plataforma: datosInternos.plataforma,
+      resolucion: datosInternos.resolucion,
+      zonaHoraria: datosInternos.zonaHoraria
     };
     
     var params = [];
