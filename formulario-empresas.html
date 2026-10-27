@@ -166,10 +166,19 @@
 <div class="form-group autocomplete-container">
 <label for="empresaNombre">Nombre de la Razón Social de la Empresa *</label>
 <div style="display: flex; gap: 0.5rem; align-items: center;">
-<input type="text" id="empresaNombre" name="empresaNombre" required autocomplete="off" placeholder="Empieza a escribir el nombre..." style="flex: 1;">
+<input type="text" id="empresaNombre" name="empresaNombre" required autocomplete="off" placeholder="Escribe al menos 3 letras del nombre o razón social de la empresa..." style="flex: 1;">
 <button type="button" id="btn-cambiar-empresa" class="btn-cambiar" style="display: none;">Cambiar</button>
 </div>
 <div id="empresa-sugerencias" class="autocomplete-sugerencias"></div>
+
+<!-- NUEVO: Mensaje de "Buscando..." -->
+<div id="buscando-empresa" style="display:none; color: #666; font-size: 0.85rem; margin-top: 5px;">
+    🔍 Buscando empresas... por favor espera.
+</div>
+<!-- FIN NUEVO -->
+</div>
+
+
 <div id="empresa-mensaje" class="empresa-mensaje"></div>
 </div>
 
@@ -320,10 +329,20 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   function buscarEmpresas(query) {
+    var buscandoDiv = document.getElementById('buscando-empresa');
+    
+    // Mostrar mensaje de "Buscando..."
+    if (buscandoDiv) buscandoDiv.style.display = 'block';
+    sugerenciasDiv.style.display = 'none';
+    
     var url = APPS_SCRIPT_URL + '?accion=buscarEmpresas&q=' + encodeURIComponent(query);
+    
     fetch(url)
       .then(function(response) { return response.json(); })
       .then(function(resultados) {
+        // Ocultar mensaje de "Buscando..."
+        if (buscandoDiv) buscandoDiv.style.display = 'none';
+        
         if (resultados.length === 0) {
           sugerenciasDiv.innerHTML = '';
           sugerenciasDiv.style.display = 'none';
@@ -347,10 +366,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       })
       .catch(function(error) {
+        // Ocultar mensaje en caso de error
+        if (buscandoDiv) buscandoDiv.style.display = 'none';
         console.error('Error al buscar empresas:', error);
       });
   }
-
   function marcarComoRegistrada(nombre) {
     empresaSeleccionada = true;
     
