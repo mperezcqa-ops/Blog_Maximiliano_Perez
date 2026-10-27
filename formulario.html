@@ -1,156 +1,36 @@
 <script defer src="https://www.google.com/recaptcha/api.js?render=6LfKOeltAAAAAI0kCJqa3Kh0ppfCEJhfsz4FdJPp"></script>
 
 <style>
-.form-voz-cliente {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-.form-voz-cliente fieldset {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  background-color: #fafafa;
-}
-.form-voz-cliente legend {
-  font-weight: 700;
-  color: #1a3a5c;
-  padding: 0 0.75rem;
-  font-size: 1.1rem;
-}
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-.form-group {
-  margin-bottom: 1rem;
-}
-.form-group label {
-  display: block;
-  margin-bottom: 0.3rem;
-  font-weight: 600;
-  color: #333;
-}
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-family: inherit;
-  box-sizing: border-box;
-}
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #c9a961;
-  box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.2);
-}
-.form-group small {
-  display: block;
-  color: #666;
-  font-size: 0.85rem;
-  margin-top: 0.3rem;
-}
-.autocomplete-container {
-  position: relative;
-}
-.autocomplete-sugerencias {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #ccc;
-  border-top: none;
-  border-radius: 0 0 6px 6px;
-  max-height: 250px;
-  overflow-y: auto;
-  z-index: 1000;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-.sugerencia-item {
-  padding: 0.6rem 1rem;
-  cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
-}
-.sugerencia-item:hover {
-  background: #f5f5f5;
-}
-.sugerencia-vacia {
-  padding: 0.6rem 1rem;
-  color: #999;
-  font-style: italic;
-}
-.checkbox-group {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-}
-.checkbox-group input {
-  width: auto;
-  margin-top: 0.3rem;
-}
-.form-actions {
-  text-align: center;
-  margin: 2rem 0;
-}
-.btn-enviar {
-  background: #1a3a5c;
-  color: white;
-  border: none;
-  padding: 1rem 3rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.btn-enviar:hover {
-  background: #c9a961;
-  color: #1a3a5c;
-  transform: translateY(-2px);
-}
-.btn-enviar:disabled {
-  background: #999;
-  cursor: not-allowed;
-  transform: none;
-}
-.form-mensaje {
-  margin-top: 1rem;
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-}
-.form-mensaje.exito {
-  background: #d4edda;
-  border: 1px solid #c3e6cb;
-  color: #155724;
-}
-.form-mensaje.error {
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
-}
-@media (max-width: 768px) {
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
+.form-voz-cliente { max-width: 900px; margin: 0 auto; padding: 1rem; }
+.form-voz-cliente fieldset { border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; background-color: #fafafa; }
+.form-voz-cliente legend { font-weight: 700; color: #1a3a5c; padding: 0 0.75rem; font-size: 1.1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: 0.3rem; font-weight: 600; color: #333; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; font-family: inherit; box-sizing: border-box; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #c9a961; box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.2); }
+.form-group small { display: block; color: #666; font-size: 0.85rem; margin-top: 0.3rem; }
+.autocomplete-container { position: relative; }
+.autocomplete-sugerencias { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-top: none; border-radius: 0 0 6px 6px; max-height: 250px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.sugerencia-item { padding: 0.6rem 1rem; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+.sugerencia-item:hover { background: #f5f5f5; }
+.sugerencia-vacia { padding: 0.6rem 1rem; color: #999; font-style: italic; }
+.checkbox-group { display: flex; align-items: flex-start; gap: 0.5rem; }
+.checkbox-group input { width: auto; margin-top: 0.3rem; }
+.form-actions { text-align: center; margin: 2rem 0; }
+.btn-enviar { background: #1a3a5c; color: white; border: none; padding: 1rem 3rem; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
+.btn-enviar:hover { background: #c9a961; color: #1a3a5c; transform: translateY(-2px); }
+.btn-enviar:disabled { background: #999; cursor: not-allowed; transform: none; }
+.form-mensaje { margin-top: 1rem; padding: 1.5rem; border-radius: 8px; text-align: center; }
+.form-mensaje.exito { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+.form-mensaje.error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+@media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
 </style>
 
 <form id="form-voz-cliente" class="form-voz-cliente">
 
 <fieldset>
 <legend>📋 Datos del Usuario</legend>
-
 <div class="form-row">
 <div class="form-group">
 <label for="nombres">Nombres *</label>
@@ -161,7 +41,6 @@
 <input type="text" id="apellidos" name="apellidos" required>
 </div>
 </div>
-
 <div class="form-row">
 <div class="form-group">
 <label for="cedula">Cédula de Identidad *</label>
@@ -172,27 +51,22 @@
 <input type="tel" id="telefono" name="telefono" required placeholder="+593 99 999 9999">
 </div>
 </div>
-
 <div class="form-group">
 <label for="emailUsuario">Correo electrónico *</label>
 <input type="email" id="emailUsuario" name="emailUsuario" required>
 </div>
-
 </fieldset>
 
 <fieldset>
 <legend>🏢 Datos de la Empresa</legend>
-
 <div class="form-group autocomplete-container">
 <label for="empresa">Nombre de la Razón Social de la Empresa *</label>
 <input type="text" id="empresa" name="empresa" required autocomplete="off" placeholder="Escribe al menos 3 letras del nombre o razón social de la empresa...">
 <div id="empresa-sugerencias" class="autocomplete-sugerencias"></div>
-  <!-- NUEVO: Mensaje de "Buscando..." -->
-  <div id="buscando-empresa" style="display:none; color: #666; font-size: 0.85rem; margin-top: 5px;">
-    🔍 Buscando empresas... por favor espera.
-  </div>
+<div id="buscando-empresa" style="display:none; color: #666; font-size: 0.85rem; margin-top: 5px;">
+  🔍 Buscando empresas... por favor espera.
 </div>
-
+</div>
 
 <div class="form-row">
 <div class="form-group">
@@ -249,39 +123,30 @@
 <input type="text" id="ciudad" name="ciudad" required>
 </div>
 </div>
-
 </fieldset>
 
 <fieldset>
 <legend>📝 Detalles del Caso</legend>
-
 <div class="form-group">
 <label for="queja">Ingrese la queja o felicitación *</label>
 <textarea id="queja" name="queja" rows="5" required placeholder="Describe tu experiencia con el mayor detalle posible..."></textarea>
 </div>
-
-
-
 <div class="form-group">
 <label for="recomendacion">Emita una recomendación de cómo solucionar el inconveniente *</label>
 <textarea id="recomendacion" name="recomendacion" rows="4" required placeholder="Tu propuesta de solución ayuda a la empresa a mejorar..."></textarea>
 </div>
-
 </fieldset>
 
 <fieldset>
 <legend>✅ Confirmación</legend>
-
 <div class="form-group checkbox-group">
 <input type="checkbox" id="terminos" name="terminos" required>
 <label for="terminos">He leído y acepto los términos y condiciones del servicio Voz del Cliente — Visible. *</label>
 </div>
-
 <div class="form-group checkbox-group">
 <input type="checkbox" id="autorizacion" name="autorizacion" required>
 <label for="autorizacion">Autorizo a Voz del Cliente — Visible a compartir mi nombre y datos de contacto con la empresa seleccionada, exclusivamente para gestionar esta comunicación. *</label>
 </div>
-
 </fieldset>
 
 <div class="form-actions">
@@ -289,9 +154,7 @@
 </div>
 
 <div id="form-mensaje" class="form-mensaje"></div>
-
 <input type="hidden" id="recaptchaToken" name="recaptchaToken">
-
 </form>
 
 <script>
@@ -313,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (query.length < 3) {
       sugerenciasDiv.innerHTML = '';
       sugerenciasDiv.style.display = 'none';
+      document.getElementById('buscando-empresa').style.display = 'none'; // Ocultar buscando
       return;
     }
     timeoutId = setTimeout(function() { buscarEmpresas(query); }, 300);
@@ -322,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var buscandoDiv = document.getElementById('buscando-empresa');
     var sugerenciasDiv = document.getElementById('empresa-sugerencias');
     
-    // Mostrar mensaje de "Buscando..."
     buscandoDiv.style.display = 'block';
     sugerenciasDiv.style.display = 'none';
     
@@ -331,7 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch(url)
       .then(function(response) { return response.json(); })
       .then(function(resultados) {
-        // Ocultar mensaje de "Buscando..."
         buscandoDiv.style.display = 'none';
         
         if (resultados.length === 0) {
@@ -356,11 +218,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       })
       .catch(function(error) {
-        // Ocultar mensaje de "Buscando..." en caso de error
         buscandoDiv.style.display = 'none';
         console.error('Error al buscar empresas:', error);
       });
   }
+
+  // ============================================
+  // ENVÍO DEL FORMULARIO (CON RECAPTCHA)
+  // ============================================
+  document.getElementById('form-voz-cliente').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btnEnviar = document.getElementById('btn-enviar');
+    var mensajeDiv = document.getElementById('form-mensaje');
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = '⏳ Enviando...';
+    mensajeDiv.innerHTML = '';
+    mensajeDiv.className = 'form-mensaje';
+
+    // TEMPORAL: Saltar reCAPTCHA
+    var skipRecaptcha = true;
+    
+    if (skipRecaptcha) {
+      console.log('Modo prueba: saltando reCAPTCHA');
+      enviarDatos('sin-token');
+      return;
+    }
+
+    // --- VARIABLES PARA EL RECAPTCHA (AQUÍ, DENTRO DEL SUBMIT) ---
+    var intentos = 0;
+    var maxIntentos = 20;
+    // -------------------------------------------------------------
+
     function esperarGrecaptcha() {
       intentos++;
       
@@ -397,7 +285,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var btnEnviar = document.getElementById('btn-enviar');
     var mensajeDiv = document.getElementById('form-mensaje');
     
-    // NUEVO: Captura de datos internos del dispositivo
     var datosInternos = {
       userAgent: navigator.userAgent || 'No disponible',
       idioma: navigator.language || 'No disponible',
@@ -420,7 +307,6 @@ document.addEventListener('DOMContentLoaded', function() {
       queja: document.getElementById('queja').value,
       recomendacion: document.getElementById('recomendacion').value,
       recaptchaToken: token,
-      // NUEVO: Agregar datos internos al payload
       userAgent: datosInternos.userAgent,
       idioma: datosInternos.idioma,
       plataforma: datosInternos.plataforma,
@@ -458,4 +344,5 @@ document.addEventListener('DOMContentLoaded', function() {
       btnEnviar.textContent = '🚀 Enviar mi voz';
     });
   }
+});
 </script>
