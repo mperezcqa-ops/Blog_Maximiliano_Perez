@@ -258,9 +258,14 @@ document.addEventListener('DOMContentLoaded', function() {
       popupHTML += '<p><strong>Contacto:</strong> ' + (inmueble.nombre_contacto || '') + '</p>';
       
       if (inmueble.telefono) {
-        popupHTML += '<a href="https://wa.me/' + inmueble.telefono.replace(/\D/g, '') + '" target="_blank" class="btn-contacto">📱 Contactar por WhatsApp</a>';
-      }
       
+              // Convertir el teléfono a texto y limpiar caracteres no numéricos
+        var telefonoTexto = String(inmueble.telefono || '').replace(/\D/g, '');
+        if (telefonoTexto) {
+          popupHTML += '<a href="https://wa.me/' + telefonoTexto + '" target="_blank" class="btn-contacto">📱 Contactar por WhatsApp</a>';
+        }
+      
+
       popupHTML += '</div>';
 
       // Crear el marcador
