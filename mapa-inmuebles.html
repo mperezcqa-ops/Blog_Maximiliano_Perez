@@ -63,35 +63,67 @@ document.addEventListener('DOMContentLoaded', function() {
   var filtroRadioActivo = false;
   var posicionUsuario = null;
 
+  // ============================================
+  // INICIALIZAR EL MAPA (CENTRADO EN EL USUARIO)
+  // ============================================
   function initMapa() {
-    mapa = L.map('mapa-principal').setView([-2.1709, -79.9223], 10);
-
+    // 1. Creamos el mapa con una vista inicial (Guayaquil)
+    mapa = L.map('mapa-principal').setView([-2.1709, -79.9223], 12);
+    
+    // 2. Cargamos el fondo del mapa (OpenStreetMap con configuración robusta)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19,
-      subdomains: 'abc',
-      crossOrigin: true
+      subdomains: 'abc'
     }).addTo(mapa);
 
+    // 3. Grupo de marcadores
     grupoMarcadores = L.featureGroup();
     mapa.addLayer(grupoMarcadores);
+
+    // 4. Intentar obtener la ubicación del usuario para centrar el mapa
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          posicionUsuario = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          };
+          // Centrar el mapa en el usuario
+          mapa.setView([posicionUsuario.lat, posicionUsuario.lon], 13);
+          
+          // Opcional: Marcar la ubicación del usuario con un círculo
+          L.circle([posicionUsuario.lat, posicionUsuario.lon], {
+            color: '#1a3a5c',
+            fillColor: '#1a3a5c',
+            fillOpacity: 0.2,
+            radius: 300
+          }).addTo(mapa);
+        },
+        function(error) {
+          console.log('El usuario no permitió la ubicación. Usando vista por defecto (Guayaquil).');
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    }
+
+    // 5. Cargar los inmuebles
     cargarInmuebles();
   }
 
+  // ============================================
+  // CARGAR INMUEBLES DESDE APPS SCRIPT
+  // ============================================
   function cargarInmuebles() {
     var callbackName = 'jsonpCallback_' + Date.now();
     
     window[callbackName] = function(data) {
-      console.log('Datos recibidos desde el backend:', data);
-      
       if (!Array.isArray(data)) {
         console.error('Los datos no son un array:', data);
         return;
       }
-      
       todosLosInmuebles = data;
       dibujarMarcadores(data);
-      
       delete window[callbackName];
       if (script.parentNode) document.body.removeChild(script);
     };
@@ -108,25 +140,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.appendChild(script);
   }
 
+  // ============================================
+  // DIBUJAR MARCADORES
+  // ============================================
   function dibujarMarcadores(inmuebles) {
-    console.log('--- Dibujando marcadores ---');
-    console.log('Total de inmuebles a dibujar:', inmuebles.length);
-    
     grupoMarcadores.clearLayers();
     marcadores = [];
     
-    inmuebles.forEach(function(inmueble, index) {
-      console.log('Inmueble ' + index + ':', inmueble);
-      
+    inmuebles.forEach(function(inmueble) {
       var lat = parseFloat(inmueble.lat);
       var lon = parseFloat(inmueble.lon);
       
-      console.log('Coordenadas parseadas -> Lat:', lat, 'Lon:', lon);
-      
-      if (isNaN(lat) || isNaN(lon)) {
-        console.error('Coordenadas inválidas para el inmueble:', inmueble.titulo);
-        return;
-      }
+      if (isNaN(lat) || isNaN(lon)) return;
 
       var popupHTML = '<div class="popup-contenido">';
       popupHTML += '<h3>' + (inmueble.titulo || 'Sin título') + '</h3>';
@@ -149,20 +174,11 @@ document.addEventListener('DOMContentLoaded', function() {
       grupoMarcadores.addLayer(marker);
       marcadores.push(marker);
     });
-    
-    // if (marcadores.length > 0) {
-    //   mapa.fitBounds(grupoMarcadores.getBounds());
-    // }
-        // Centrar el mapa en el primer marcador con un zoom moderado
-    if (marcadores.length > 0) {
-      var primerInmueble = inmuebles[0];
-      var lat = parseFloat(primerInmueble.lat);
-      var lon = parseFloat(primerInmueble.lon);
-      mapa.setView([lat, lon], 13); // Zoom 13 (nivel de ciudad)
-    }
-    
   }
 
+  // ============================================
+  // FILTRO POR TIPO
+  // ============================================
   document.getElementById('filtro-tipo').addEventListener('change', function() {
     var tipoSeleccionado = this.value;
     var inmueblesFiltrados;
@@ -184,6 +200,9 @@ document.addEventListener('DOMContentLoaded', function() {
     dibujarMarcadores(inmueblesFiltrados);
   });
 
+  // ============================================
+  // BOTÓN "BUSCAR CERCA DE MÍ" (3 km)
+  // ============================================
   document.getElementById('btn-cerca-de-mi').addEventListener('click', function() {
     var btn = this;
     var mensajeDiv = document.getElementById('mensaje-filtro');
@@ -205,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
     navigator.geolocation.getCurrentPosition(
       function(position) {
         posicionUsuario = { lat: position.coords.latitude, lon: position.coords.longitude };
-        mapa.setView([posicionUsuario.lat, posicionUsuario.lon], 13);
+        mapa.setView([posicionUsuario.lat, posicionUsuario.lon], 14);
         var inmueblesCercanos = todosLosInmuebles.filter(function(inmueble) {
           var lat = parseFloat(inmueble.lat);
           var lon = parseFloat(inmueble.lon);
