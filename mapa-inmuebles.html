@@ -64,14 +64,13 @@ document.addEventListener('DOMContentLoaded', function() {
   var posicionUsuario = null;
 
   // ============================================
-  // INICIALIZAR EL MAPA (CENTRADO EN EL USUARIO)
+  // INICIALIZAR EL MAPA (SIN GEOLOCALIZACIÓN AUTOMÁTICA)
   // ============================================
-
   function initMapa() {
-    // 1. Creamos el mapa con una vista inicial (Guayaquil)
+    // 1. Vista inicial: Guayaquil
     mapa = L.map('mapa-principal').setView([-2.1709, -79.9223], 12);
     
-    // 2. Cargamos el fondo del mapa
+    // 2. Fondo del mapa
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19,
@@ -82,37 +81,12 @@ document.addEventListener('DOMContentLoaded', function() {
     grupoMarcadores = L.featureGroup();
     mapa.addLayer(grupoMarcadores);
 
-    // 4. Intentar obtener la ubicación del usuario
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        function(position) {
-          posicionUsuario = {
-            lat: position.coords.latitude,
-            lon: position.coords.longitude
-          };
-          // Si el usuario acepta, centramos el mapa en su ubicación
-          mapa.setView([posicionUsuario.lat, posicionUsuario.lon], 13);
-          
-          L.circle([posicionUsuario.lat, posicionUsuario.lon], {
-            color: '#1a3a5c',
-            fillColor: '#1a3a5c',
-            fillOpacity: 0.2,
-            radius: 300
-          }).addTo(mapa);
-        },
-        function(error) {
-          console.log('El usuario no permitió la ubicación. Usando vista por defecto (Guayaquil).');
-        },
-        { enableHighAccuracy: true, timeout: 5000 }
-      );
-    }
-
-    // 5. Cargar los inmuebles
+    // 4. Cargar los inmuebles
     cargarInmuebles();
   }
 
   // ============================================
-  // CARGAR INMUEBLES DESDE APPS SCRIPT
+  // CARGAR INMUEBLES
   // ============================================
   function cargarInmuebles() {
     var callbackName = 'jsonpCallback_' + Date.now();
@@ -141,9 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ============================================
-  // DIBUJAR MARCADORES
+  // DIBUJAR MARCADORES Y AJUSTAR EL MAPA
   // ============================================
-
   function dibujarMarcadores(inmuebles) {
     grupoMarcadores.clearLayers();
     marcadores = [];
@@ -177,17 +150,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================
-    // AJUSTE CLAVE: Mostrar todos los marcadores en pantalla
+    // AJUSTAR EL MAPA PARA MOSTRAR TODOS LOS MARCADORES
     // ============================================
     if (marcadores.length > 0) {
       var group = L.featureGroup(marcadores);
       
-      // Si el usuario dio su ubicación, la incluimos
+      // Si el usuario ya tiene ubicación (por el botón de 3km), la incluimos
       if (posicionUsuario) {
         group.addLayer(L.marker([posicionUsuario.lat, posicionUsuario.lon]));
       }
       
-      // Ajustar el mapa para que quepan todos los puntos (con un margen del 20%)
+      // Ajustar el mapa
       mapa.fitBounds(group.getBounds().pad(0.2));
     }
   }
@@ -222,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btn-cerca-de-mi').addEventListener('click', function() {
     var btn = this;
     var mensajeDiv = document.getElementById('mensaje-filtro');
+    
     if (filtroRadioActivo) {
       filtroRadioActivo = false;
       posicionUsuario = null;
@@ -231,16 +205,31 @@ document.addEventListener('DOMContentLoaded', function() {
       dibujarMarcadores(todosLosInmuebles);
       return;
     }
+    
     if (!navigator.geolocation) {
       alert('Tu navegador no soporta geolocalización.');
       return;
     }
+    
     btn.innerHTML = '⏳ Obteniendo ubicación...';
     btn.disabled = true;
+    
     navigator.geolocation.getCurrentPosition(
       function(position) {
         posicionUsuario = { lat: position.coords.latitude, lon: position.coords.longitude };
+        
+        // Centrar en la ubicación del usuario
         mapa.setView([posicionUsuario.lat, posicionUsuario.lon], 14);
+        
+        // Círculo de ubicación
+        L.circle([posicionUsuario.lat, posicionUsuario.lon], {
+          color: '#1a3a5c',
+          fillColor: '#1a3a5c',
+          fillOpacity: 0.2,
+          radius: 300
+        }).addTo(mapa);
+        
+        // Filtrar inmuebles a 3 km
         var inmueblesCercanos = todosLosInmuebles.filter(function(inmueble) {
           var lat = parseFloat(inmueble.lat);
           var lon = parseFloat(inmueble.lon);
@@ -248,7 +237,9 @@ document.addEventListener('DOMContentLoaded', function() {
           var distancia = calcularDistancia(posicionUsuario.lat, posicionUsuario.lon, lat, lon);
           return distancia <= 3;
         });
+        
         dibujarMarcadores(inmueblesCercanos);
+        
         filtroRadioActivo = true;
         btn.classList.add('activo');
         btn.innerHTML = '❌ Quitar filtro de 3 km';
@@ -266,6 +257,9 @@ document.addEventListener('DOMContentLoaded', function() {
     );
   });
 
+  // ============================================
+  // CALCULAR DISTANCIA (HAVERSINE)
+  // ============================================
   function calcularDistancia(lat1, lon1, lat2, lon2) {
     var R = 6371;
     var dLat = (lat2 - lat1) * Math.PI / 180;
