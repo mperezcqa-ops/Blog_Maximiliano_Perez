@@ -27,6 +27,7 @@
 /* Botón de subida de Cloudinary */
 #btn-subir-foto { background: #c9a961; padding: 0.8rem; border: none; border-radius: 6px; color: white; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; margin-bottom: 0.5rem; }
 #btn-subir-foto:hover { background: #b89850; }
+#btn-subir-foto:disabled { background: #999; cursor: not-allowed; }
 
 @media (max-width: 768px) { .form-inmuebles .form-row { grid-template-columns: 1fr; } }
 </style>
@@ -77,11 +78,11 @@
 <input type="number" id="precio" name="precio" required placeholder="Ej: 150000">
 </div>
 <div class="form-group">
-<label>Fotos del Inmueble (1 para Básico, hasta 5 para Pro) *</label>
-<button type="button" id="btn-subir-foto">📷 Subir Fotos desde mi dispositivo</button>
+<label>Fotos del Inmueble *</label>
+<button type="button" id="btn-subir-foto" disabled>📷 Primero selecciona un plan</button>
 <input type="hidden" id="fotos_url" name="fotos_url" required>
 <div id="preview-fotos" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
-<small id="info-fotos" style="color: #666;">Sube al menos 1 foto. Si eliges el plan Pro, puedes subir hasta 5.</small>
+<small id="info-fotos" style="color: #666;">Selecciona un plan para habilitar la subida de fotos.</small>
 </div>
 </div>
 
@@ -96,7 +97,6 @@
 <legend>📍 Ubicación</legend>
 <p style="color: #666; margin-bottom: 0.5rem;">Busca la dirección exacta o haz clic directamente en el mapa.</p>
 
-<!-- Buscador de direcciones -->
 <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
   <input type="text" id="buscador-direccion" placeholder="Ej: Av. 9 de Octubre y Malecón, Guayaquil" style="flex: 1;">
   <button type="button" id="btn-buscar-direccion" class="btn-enviar" style="width: auto; padding: 0.6rem 1.5rem;">🔍 Buscar</button>
@@ -163,48 +163,100 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpgKWbdwmtmYLj1z3AXm3_kUES-bLNOJSIznGT_XSNVX-PXbTHvEfnFc6b1cMOuopJRA/exec";
 
+  var myWidget = null;
+  var planActual = null;
+
   // ============================================
-  // WIDGET DE SUBIDA DE FOTOS (CLOUDINARY)
+  // CONFIGURAR EL WIDGET SEGÚN EL PLAN
   // ============================================
-  var myWidget = cloudinary.createUploadWidget({
-    cloudName: 'uky7jd5y',            
-    uploadPreset: 'inmuebles_preset', 
-    sources: ['local', 'camera', 'url'],
-    multiple: true,
-    maxFiles: 5,
-    maxFileSize: 5000000,
-    cropping: true,
-    croppingAspectRatio: 1.5
-  }, (error, result) => {
-    if (!error && result && result.event === "success") {
-      var fotosInput = document.getElementById('fotos_url');
-      var fotosActuales = fotosInput.value ? fotosInput.value.split(',') : [];
-      fotosActuales.push(result.info.secure_url);
-      fotosInput.value = fotosActuales.join(',');
-      
-      var previewDiv = document.getElementById('preview-fotos');
-      previewDiv.innerHTML = '';
-      fotosActuales.forEach(function(url, index) {
-        previewDiv.innerHTML += '<div style="position: relative;">' +
-          '<img src="' + url + '" style="max-width: 100px; border-radius: 8px; border: 2px solid #c9a961;">' +
-          '<button type="button" onclick="eliminarFoto(' + index + ')" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px;">X</button>' +
-          '</div>';
-      });
-      
-      document.getElementById('info-fotos').innerText = 'Fotos subidas: ' + fotosActuales.length + ' (Máximo 5)';
+  function configurarWidget(plan) {
+    var btnSubir = document.getElementById('btn-subir-foto');
+    var infoFotos = document.getElementById('info-fotos');
+    
+    // Limpiar fotos si cambia de plan
+    if (planActual !== plan) {
+      document.getElementById('fotos_url').value = '';
+      document.getElementById('preview-fotos').innerHTML = '';
+    }
+    
+    planActual = plan;
+    
+    var maxFotos = (plan === 'Pro') ? 5 : 1;
+    
+    // Crear el widget con el límite correspondiente
+    myWidget = cloudinary.createUploadWidget({
+      cloudName: 'uky7jd5y',
+      uploadPreset: 'inmuebles_preset',
+      sources: ['local', 'camera', 'url'],
+      multiple: maxFotos > 1,
+      maxFiles: maxFotos,
+      maxFileSize: 5000000,
+      cropping: true,
+      croppingAspectRatio: 1.5
+    }, (error, result) => {
+      if (!error && result && result.event === "success") {
+        var fotosInput = document.getElementById('fotos_url');
+        var fotosActuales = fotosInput.value ? fotosInput.value.split(',') : [];
+        fotosActuales.push(result.info.secure_url);
+        fotosInput.value = fotosActuales.join(',');
+        
+        var previewDiv = document.getElementById('preview-fotos');
+        previewDiv.innerHTML = '';
+        fotosActuales.forEach(function(url, index) {
+          previewDiv.innerHTML += '<div style="position: relative;">' +
+            '<img src="' + url + '" style="max-width: 100px; border-radius: 8px; border: 2px solid #c9a961;">' +
+            '<button type="button" onclick="eliminarFoto(' + index + ')" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px;">X</button>' +
+            '</div>';
+        });
+        
+        document.getElementById('info-fotos').innerText = 'Fotos subidas: ' + fotosActuales.length + ' (Máximo ' + maxFotos + ')';
+      }
+    });
+    
+    btnSubir.disabled = false;
+    btnSubir.innerHTML = '📷 Subir Fotos desde mi dispositivo (Máx. ' + maxFotos + ')';
+    infoFotos.innerText = 'Puedes subir hasta ' + maxFotos + ' foto' + (maxFotos > 1 ? 's' : '') + '.';
+  }
+
+  // ============================================
+  // EVENTO: CAMBIO DE PLAN
+  // ============================================
+  document.getElementById('plan').addEventListener('change', function() {
+    var plan = this.value;
+    
+    // Actualizar monto
+    var montoSpan = document.getElementById('monto-plan');
+    if (plan === 'Basico') {
+      montoSpan.innerText = '$2 (Básico)';
+    } else if (plan === 'Pro') {
+      montoSpan.innerText = '$3 (Pro)';
+    }
+    
+    // Configurar el widget según el plan
+    if (plan) {
+      configurarWidget(plan);
     }
   });
 
+  // ============================================
+  // BOTÓN DE SUBIDA DE FOTOS
+  // ============================================
   document.getElementById('btn-subir-foto').addEventListener('click', function() {
-    myWidget.open();
-  }, false);
+    if (myWidget) {
+      myWidget.open();
+    }
+  });
 
-  // Función para eliminar fotos
+  // ============================================
+  // FUNCIÓN PARA ELIMINAR FOTOS
+  // ============================================
   window.eliminarFoto = function(index) {
     var fotosInput = document.getElementById('fotos_url');
     var fotosActuales = fotosInput.value ? fotosInput.value.split(',') : [];
     fotosActuales.splice(index, 1);
     fotosInput.value = fotosActuales.join(',');
+    
+    var maxFotos = (planActual === 'Pro') ? 5 : 1;
     
     var previewDiv = document.getElementById('preview-fotos');
     previewDiv.innerHTML = '';
@@ -215,18 +267,8 @@ document.addEventListener('DOMContentLoaded', function() {
         '</div>';
     });
     
-    document.getElementById('info-fotos').innerText = 'Fotos subidas: ' + fotosActuales.length + ' (Máximo 5)';
+    document.getElementById('info-fotos').innerText = 'Fotos subidas: ' + fotosActuales.length + ' (Máximo ' + maxFotos + ')';
   };
-
-  // Actualizar el monto del plan cuando el usuario cambie la selección
-  document.getElementById('plan').addEventListener('change', function() {
-    var montoSpan = document.getElementById('monto-plan');
-    if (this.value === 'Basico') {
-      montoSpan.innerText = '$2 (Básico)';
-    } else if (this.value === 'Pro') {
-      montoSpan.innerText = '$3 (Pro)';
-    }
-  });
 
   // ============================================
   // MAPA DE SELECCIÓN DE UBICACIÓN
@@ -320,13 +362,13 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
-    // Validar número de fotos según el plan
+    // Validación final (por si acaso)
     var fotos = document.getElementById('fotos_url').value.split(',');
     var plan = document.getElementById('plan').value;
     
     if (plan === 'Basico' && fotos.length > 1) {
       mensajeDiv.className = 'form-mensaje error';
-      mensajeDiv.innerHTML = '❌ El plan Básico solo permite 1 foto. Cambia al plan Pro o elimina las fotos extra.';
+      mensajeDiv.innerHTML = '❌ El plan Básico solo permite 1 foto.';
       return;
     }
     
@@ -376,6 +418,11 @@ document.addEventListener('DOMContentLoaded', function() {
       if (marcador) { mapa.removeLayer(marcador); marcador = null; }
       document.getElementById('coords-mostradas').innerText = '';
       document.getElementById('preview-fotos').innerHTML = '';
+      document.getElementById('fotos_url').value = '';
+      document.getElementById('btn-subir-foto').disabled = true;
+      document.getElementById('btn-subir-foto').innerHTML = '📷 Primero selecciona un plan';
+      document.getElementById('info-fotos').innerText = 'Selecciona un plan para habilitar la subida de fotos.';
+      planActual = null;
     })
     .catch(function(error) {
       mensajeDiv.className = 'form-mensaje error';
