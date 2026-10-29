@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var callbackName = 'jsonpCallback_' + Date.now();
     
     window[callbackName] = function(data) {
-      console.log('Datos recibidos:', data); // Log para depurar
+      console.log('Datos recibidos desde el backend:', data);
       
       if (!Array.isArray(data)) {
         console.error('Los datos no son un array:', data);
@@ -104,12 +104,24 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function dibujarMarcadores(inmuebles) {
+    console.log('--- Dibujando marcadores ---');
+    console.log('Total de inmuebles a dibujar:', inmuebles.length);
+    
     grupoMarcadores.clearLayers();
     marcadores = [];
-    inmuebles.forEach(function(inmueble) {
+    
+    inmuebles.forEach(function(inmueble, index) {
+      console.log('Inmueble ' + index + ':', inmueble);
+      
       var lat = parseFloat(inmueble.lat);
       var lon = parseFloat(inmueble.lon);
-      if (isNaN(lat) || isNaN(lon)) return;
+      
+      console.log('Coordenadas parseadas -> Lat:', lat, 'Lon:', lon);
+      
+      if (isNaN(lat) || isNaN(lon)) {
+        console.error('Coordenadas inválidas para el inmueble:', inmueble.titulo);
+        return;
+      }
 
       var popupHTML = '<div class="popup-contenido">';
       popupHTML += '<h3>' + (inmueble.titulo || 'Sin título') + '</h3>';
@@ -132,6 +144,10 @@ document.addEventListener('DOMContentLoaded', function() {
       grupoMarcadores.addLayer(marker);
       marcadores.push(marker);
     });
+    
+    if (marcadores.length > 0) {
+      mapa.fitBounds(grupoMarcadores.getBounds());
+    }
   }
 
   document.getElementById('filtro-tipo').addEventListener('change', function() {
