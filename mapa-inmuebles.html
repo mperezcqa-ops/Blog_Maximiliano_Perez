@@ -75,19 +75,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function cargarInmuebles() {
     var callbackName = 'jsonpCallback_' + Date.now();
+    
     window[callbackName] = function(data) {
+      console.log('Datos recibidos:', data); // Log para depurar
+      
+      if (!Array.isArray(data)) {
+        console.error('Los datos no son un array:', data);
+        return;
+      }
+      
       todosLosInmuebles = data;
       dibujarMarcadores(data);
+      
       delete window[callbackName];
       if (script.parentNode) document.body.removeChild(script);
     };
+
     var script = document.createElement('script');
     script.src = APPS_SCRIPT_URL + '?accion=obtenerInmuebles&callback=' + callbackName;
+    
     script.onerror = function() {
       console.error('Error al cargar inmuebles con JSONP');
       delete window[callbackName];
       if (script.parentNode) document.body.removeChild(script);
     };
+    
     document.body.appendChild(script);
   }
 
