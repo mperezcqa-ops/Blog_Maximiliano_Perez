@@ -17,6 +17,26 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 .mensaje-filtro { width: 100%; text-align: center; color: #1a3a5c; font-weight: 600; margin-top: 0.5rem; display: none; }
 #iframe-mapa { width: 100%; height: calc(100vh - 200px); border: none; }
 @media (max-width: 768px) { .mapa-controles { flex-direction: column; align-items: stretch; } #iframe-mapa { height: calc(100vh - 250px); } }
+
+/* Panel de información */
+.panel-info { background: white; padding: 1.5rem; margin: 1rem 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
+.panel-info.visible { display: block; }
+.panel-info h2 { color: #1a3a5c; margin: 0 0 1rem 0; font-size: 1.4rem; }
+.panel-info .precio { font-size: 1.5rem; color: #c9a961; font-weight: 700; margin-bottom: 1rem; }
+.panel-info img { max-width: 100%; border-radius: 8px; margin-bottom: 1rem; }
+.panel-info p { color: #333; line-height: 1.6; }
+.panel-info .btn-contacto { display: inline-block; background: #1a3a5c; color: white; text-align: center; padding: 0.8rem 1.5rem; border-radius: 6px; text-decoration: none; margin-top: 1rem; font-weight: 600; }
+.panel-info .btn-contacto:hover { background: #c9a961; color: #1a3a5c; }
+.panel-info .btn-cerrar { background: #ccc; color: #333; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; margin-bottom: 1rem; }
+.panel-info .btn-cerrar:hover { background: #999; }
+
+/* Lista de inmuebles */
+.lista-inmuebles { margin: 1rem 2rem; }
+.lista-inmuebles h3 { color: #1a3a5c; }
+.lista-inmuebles .inmueble-item { background: white; padding: 1rem; margin-bottom: 0.5rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.lista-inmuebles .inmueble-item:hover { background: #f0f0f0; }
+.lista-inmuebles .inmueble-item .titulo { font-weight: 600; color: #1a3a5c; }
+.lista-inmuebles .inmueble-item .precio-item { color: #c9a961; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -44,11 +64,113 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
   frameborder="0">
 </iframe>
 
+<!-- Panel de información (inicialmente oculto) -->
+<div id="panel-info" class="panel-info">
+  <button class="btn-cerrar" onclick="document.getElementById('panel-info').classList.remove('visible')">✖ Cerrar</button>
+  <h2 id="info-titulo"></h2>
+  <div class="precio" id="info-precio"></div>
+  <img id="info-foto" src="" alt="" style="display:none;">
+  <p id="info-descripcion"></p>
+  <p><strong>Tipo:</strong> <span id="info-tipo"></span></p>
+  <p><strong>Contacto:</strong> <span id="info-contacto"></span></p>
+  <p><strong>Teléfono:</strong> <span id="info-telefono"></span></p>
+  <a id="info-whatsapp" href="#" target="_blank" class="btn-contacto">📱 Contactar por WhatsApp</a>
+</div>
+
+<!-- Lista de inmuebles -->
+<div id="lista-inmuebles" class="lista-inmuebles">
+  <h3>Inmuebles disponibles</h3>
+  <div id="lista-contenido"></div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  
+
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpgKWbdwmtmYLj1z3AXm3_kUES-bLNOJSIznGT_XSNVX-PXbTHvEfnFc6b1cMOuopJRA/exec";
+
+  var todosLosInmuebles = [];
+  var posicionUsuario = null;
+
   // ============================================
-  // BOTÓN "BUSCAR CERCA DE MÍ" (Redirige el iframe)
+  // CARGAR INMUEBLES (JSONP)
+  // ============================================
+  function cargarInmuebles() {
+    var callbackName = 'jsonpCallback_' + Date.now();
+    
+    window[callbackName] = function(data) {
+      if (!Array.isArray(data)) {
+        console.error('Los datos no son un array:', data);
+        return;
+      }
+      todosLosInmuebles = data;
+      mostrarLista(data);
+      delete window[callbackName];
+      if (script.parentNode) document.body.removeChild(script);
+    };
+
+    var script = document.createElement('script');
+    script.src = APPS_SCRIPT_URL + '?accion=obtenerInmuebles&callback=' + callbackName;
+    
+    script.onerror = function() {
+      console.error('Error al cargar inmuebles con JSONP');
+      delete window[callbackName];
+      if (script.parentNode) document.body.removeChild(script);
+    };
+    
+    document.body.appendChild(script);
+  }
+
+  // ============================================
+  // MOSTRAR LISTA DE INMUEBLES
+  // ============================================
+  function mostrarLista(inmuebles) {
+    var listaDiv = document.getElementById('lista-contenido');
+    listaDiv.innerHTML = '';
+    
+    inmuebles.forEach(function(inmueble) {
+      var item = document.createElement('div');
+      item.className = 'inmueble-item';
+      item.innerHTML = '<span class="titulo">' + (inmueble.titulo || 'Sin título') + '</span>' +
+                       '<span class="precio-item">$' + (inmueble.precio || 'Consultar') + '</span>';
+      item.addEventListener('click', function() {
+        mostrarInfo(inmueble);
+      });
+      listaDiv.appendChild(item);
+    });
+  }
+
+  // ============================================
+  // MOSTRAR INFORMACIÓN EN EL PANEL
+  // ============================================
+  function mostrarInfo(inmueble) {
+    document.getElementById('info-titulo').innerText = inmueble.titulo || 'Sin título';
+    document.getElementById('info-precio').innerText = '$' + (inmueble.precio || 'Consultar');
+    document.getElementById('info-descripcion').innerText = inmueble.descripcion || '';
+    document.getElementById('info-tipo').innerText = inmueble.tipo || 'No especificado';
+    document.getElementById('info-contacto').innerText = inmueble.nombre_contacto || '';
+    document.getElementById('info-telefono').innerText = inmueble.telefono || '';
+    
+    var fotoImg = document.getElementById('info-foto');
+    if (inmueble.fotos_url) {
+      fotoImg.src = inmueble.fotos_url;
+      fotoImg.style.display = 'block';
+    } else {
+      fotoImg.style.display = 'none';
+    }
+    
+    var telefonoTexto = String(inmueble.telefono || '').replace(/\D/g, '');
+    if (telefonoTexto) {
+      document.getElementById('info-whatsapp').href = 'https://wa.me/' + telefonoTexto;
+      document.getElementById('info-whatsapp').style.display = 'inline-block';
+    } else {
+      document.getElementById('info-whatsapp').style.display = 'none';
+    }
+    
+    document.getElementById('panel-info').classList.add('visible');
+  }
+
+  // ============================================
+  // BOTÓN "BUSCAR CERCA DE MÍ"
   // ============================================
   document.getElementById('btn-cerca-de-mi').addEventListener('click', function() {
     var btn = this;
@@ -67,14 +189,11 @@ document.addEventListener('DOMContentLoaded', function() {
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
         
-        // Calcular un bounding box de 3 km (aproximado)
-        // 1 grado de latitud ≈ 111 km, 1 grado de longitud ≈ 111 km * cos(lat)
         var deltaLat = 3 / 111.0;
         var deltaLon = 3 / (111.0 * Math.cos(lat * Math.PI / 180));
         
         var bbox = (lon - deltaLon) + ',' + (lat - deltaLat) + ',' + (lon + deltaLon) + ',' + (lat + deltaLat);
         
-        // Actualizar el iframe con la nueva ubicación
         document.getElementById('iframe-mapa').src = 
           'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
         
@@ -94,6 +213,9 @@ document.addEventListener('DOMContentLoaded', function() {
       { enableHighAccuracy: true, timeout: 10000 }
     );
   });
+
+  // Iniciar
+  cargarInmuebles();
 
 });
 </script>
