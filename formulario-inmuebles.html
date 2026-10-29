@@ -77,10 +77,11 @@
 <input type="number" id="precio" name="precio" required placeholder="Ej: 150000">
 </div>
 <div class="form-group">
-<label>Foto Principal *</label>
-<button type="button" id="btn-subir-foto">📷 Subir Foto desde mi dispositivo</button>
+<label>Fotos del Inmueble (1 para Básico, hasta 5 para Pro) *</label>
+<button type="button" id="btn-subir-foto">📷 Subir Fotos desde mi dispositivo</button>
 <input type="hidden" id="fotos_url" name="fotos_url" required>
-<div id="preview-foto" style="margin-top: 10px;"></div>
+<div id="preview-fotos" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+<small id="info-fotos" style="color: #666;">Sube al menos 1 foto. Si eliges el plan Pro, puedes subir hasta 5.</small>
 </div>
 </div>
 
@@ -133,8 +134,6 @@ Para completar el registro, <strong>responde a ese correo adjuntando el comproba
 
 </fieldset>
 
-
-
 <fieldset>
 <legend>📞 Datos de Contacto</legend>
 <div class="form-row">
@@ -171,24 +170,63 @@ document.addEventListener('DOMContentLoaded', function() {
     cloudName: 'uky7jd5y',            
     uploadPreset: 'inmuebles_preset', 
     sources: ['local', 'camera', 'url'],
-    multiple: false,
-    maxFileSize: 5000000, // 5MB
+    multiple: true,
+    maxFiles: 5,
+    maxFileSize: 5000000,
     cropping: true,
     croppingAspectRatio: 1.5
   }, (error, result) => {
     if (!error && result && result.event === "success") {
-      var urlFoto = result.info.secure_url;
-      document.getElementById('fotos_url').value = urlFoto;
+      var fotosInput = document.getElementById('fotos_url');
+      var fotosActuales = fotosInput.value ? fotosInput.value.split(',') : [];
+      fotosActuales.push(result.info.secure_url);
+      fotosInput.value = fotosActuales.join(',');
       
-      document.getElementById('preview-foto').innerHTML = 
-        '<img src="' + urlFoto + '" style="max-width: 200px; border-radius: 8px; border: 2px solid #c9a961;">' +
-        '<p style="font-size: 0.8rem; color: #666;">✅ Foto subida correctamente.</p>';
+      var previewDiv = document.getElementById('preview-fotos');
+      previewDiv.innerHTML = '';
+      fotosActuales.forEach(function(url, index) {
+        previewDiv.innerHTML += '<div style="position: relative;">' +
+          '<img src="' + url + '" style="max-width: 100px; border-radius: 8px; border: 2px solid #c9a961;">' +
+          '<button type="button" onclick="eliminarFoto(' + index + ')" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px;">X</button>' +
+          '</div>';
+      });
+      
+      document.getElementById('info-fotos').innerText = 'Fotos subidas: ' + fotosActuales.length + ' (Máximo 5)';
     }
   });
 
   document.getElementById('btn-subir-foto').addEventListener('click', function() {
     myWidget.open();
   }, false);
+
+  // Función para eliminar fotos
+  window.eliminarFoto = function(index) {
+    var fotosInput = document.getElementById('fotos_url');
+    var fotosActuales = fotosInput.value ? fotosInput.value.split(',') : [];
+    fotosActuales.splice(index, 1);
+    fotosInput.value = fotosActuales.join(',');
+    
+    var previewDiv = document.getElementById('preview-fotos');
+    previewDiv.innerHTML = '';
+    fotosActuales.forEach(function(url, i) {
+      previewDiv.innerHTML += '<div style="position: relative;">' +
+        '<img src="' + url + '" style="max-width: 100px; border-radius: 8px; border: 2px solid #c9a961;">' +
+        '<button type="button" onclick="eliminarFoto(' + i + ')" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px;">X</button>' +
+        '</div>';
+    });
+    
+    document.getElementById('info-fotos').innerText = 'Fotos subidas: ' + fotosActuales.length + ' (Máximo 5)';
+  };
+
+  // Actualizar el monto del plan cuando el usuario cambie la selección
+  document.getElementById('plan').addEventListener('change', function() {
+    var montoSpan = document.getElementById('monto-plan');
+    if (this.value === 'Basico') {
+      montoSpan.innerText = '$2 (Básico)';
+    } else if (this.value === 'Pro') {
+      montoSpan.innerText = '$3 (Pro)';
+    }
+  });
 
   // ============================================
   // MAPA DE SELECCIÓN DE UBICACIÓN
@@ -278,7 +316,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!document.getElementById('fotos_url').value) {
       mensajeDiv.className = 'form-mensaje error';
-      mensajeDiv.innerHTML = '❌ Por favor, sube una foto del inmueble.';
+      mensajeDiv.innerHTML = '❌ Por favor, sube al menos una foto del inmueble.';
+      return;
+    }
+    
+    // Validar número de fotos según el plan
+    var fotos = document.getElementById('fotos_url').value.split(',');
+    var plan = document.getElementById('plan').value;
+    
+    if (plan === 'Basico' && fotos.length > 1) {
+      mensajeDiv.className = 'form-mensaje error';
+      mensajeDiv.innerHTML = '❌ El plan Básico solo permite 1 foto. Cambia al plan Pro o elimina las fotos extra.';
+      return;
+    }
+    
+    if (plan === 'Pro' && fotos.length > 5) {
+      mensajeDiv.className = 'form-mensaje error';
+      mensajeDiv.innerHTML = '❌ El plan Pro permite hasta 5 fotos.';
       return;
     }
     
@@ -290,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var datos = {
       titulo: document.getElementById('titulo').value,
       tipo: document.getElementById('tipo').value,
-      plan: document.getElementById('plan').value,
+      plan: plan,
       precio: document.getElementById('precio').value,
       fotos_url: document.getElementById('fotos_url').value,
       descripcion: document.getElementById('descripcion').value,
@@ -321,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('form-inmuebles').reset();
       if (marcador) { mapa.removeLayer(marcador); marcador = null; }
       document.getElementById('coords-mostradas').innerText = '';
-      document.getElementById('preview-foto').innerHTML = '';
+      document.getElementById('preview-fotos').innerHTML = '';
     })
     .catch(function(error) {
       mensajeDiv.className = 'form-mensaje error';
@@ -335,17 +389,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
 });
-
-  // Actualizar el monto del plan cuando el usuario cambie la selección
-  document.getElementById('plan').addEventListener('change', function() {
-    var montoSpan = document.getElementById('monto-plan');
-    if (this.value === 'Basico') {
-      montoSpan.innerText = '$2 (Básico)';
-    } else if (this.value === 'Pro') {
-      montoSpan.innerText = '$3 (Pro)';
-    }
-  });
-
 </script>
 
 </body>
