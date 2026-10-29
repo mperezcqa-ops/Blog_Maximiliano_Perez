@@ -15,8 +15,8 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 .btn-filtro { background: #1a3a5c; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
 .btn-filtro:hover { background: #c9a961; color: #1a3a5c; }
 .mensaje-filtro { width: 100%; text-align: center; color: #1a3a5c; font-weight: 600; margin-top: 0.5rem; display: none; }
-#iframe-mapa { width: 100%; height: calc(100vh - 200px); border: none; }
-@media (max-width: 768px) { .mapa-controles { flex-direction: column; align-items: stretch; } #iframe-mapa { height: calc(100vh - 250px); } }
+#iframe-mapa { width: 100%; height: calc(100vh - 250px); border: none; }
+@media (max-width: 768px) { .mapa-controles { flex-direction: column; align-items: stretch; } #iframe-mapa { height: calc(100vh - 300px); } }
 
 /* Panel de información */
 .panel-info { background: white; padding: 1.5rem; margin: 1rem 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
@@ -37,6 +37,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 .lista-inmuebles .inmueble-item:hover { background: #f0f0f0; }
 .lista-inmuebles .inmueble-item .titulo { font-weight: 600; color: #1a3a5c; }
 .lista-inmuebles .inmueble-item .precio-item { color: #c9a961; font-weight: 700; }
+.lista-inmuebles .no-inmuebles { color: #666; font-style: italic; padding: 1rem; background: white; border-radius: 8px; text-align: center; }
 </style>
 </head>
 <body>
@@ -80,7 +81,9 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 <!-- Lista de inmuebles -->
 <div id="lista-inmuebles" class="lista-inmuebles">
   <h3>Inmuebles disponibles</h3>
-  <div id="lista-contenido"></div>
+  <div id="lista-contenido">
+    <div class="no-inmuebles">Cargando inmuebles...</div>
+  </div>
 </div>
 
 <script>
@@ -95,15 +98,22 @@ document.addEventListener('DOMContentLoaded', function() {
   // CARGAR INMUEBLES (JSONP)
   // ============================================
   function cargarInmuebles() {
+    console.log('Cargando inmuebles desde:', APPS_SCRIPT_URL);
+    
     var callbackName = 'jsonpCallback_' + Date.now();
     
     window[callbackName] = function(data) {
+      console.log('Datos recibidos:', data);
+      
       if (!Array.isArray(data)) {
         console.error('Los datos no son un array:', data);
+        document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar los inmuebles.</div>';
         return;
       }
+      
       todosLosInmuebles = data;
       mostrarLista(data);
+      
       delete window[callbackName];
       if (script.parentNode) document.body.removeChild(script);
     };
@@ -113,6 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     script.onerror = function() {
       console.error('Error al cargar inmuebles con JSONP');
+      document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error de conexión al cargar los inmuebles.</div>';
       delete window[callbackName];
       if (script.parentNode) document.body.removeChild(script);
     };
@@ -124,8 +135,15 @@ document.addEventListener('DOMContentLoaded', function() {
   // MOSTRAR LISTA DE INMUEBLES
   // ============================================
   function mostrarLista(inmuebles) {
+    console.log('Mostrando lista de inmuebles:', inmuebles.length);
+    
     var listaDiv = document.getElementById('lista-contenido');
     listaDiv.innerHTML = '';
+    
+    if (inmuebles.length === 0) {
+      listaDiv.innerHTML = '<div class="no-inmuebles">No hay inmuebles disponibles en este momento.</div>';
+      return;
+    }
     
     inmuebles.forEach(function(inmueble) {
       var item = document.createElement('div');
@@ -143,6 +161,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // MOSTRAR INFORMACIÓN EN EL PANEL
   // ============================================
   function mostrarInfo(inmueble) {
+    console.log('Mostrando información del inmueble:', inmueble);
+    
     document.getElementById('info-titulo').innerText = inmueble.titulo || 'Sin título';
     document.getElementById('info-precio').innerText = '$' + (inmueble.precio || 'Consultar');
     document.getElementById('info-descripcion').innerText = inmueble.descripcion || '';
