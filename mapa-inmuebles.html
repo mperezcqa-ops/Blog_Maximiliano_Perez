@@ -73,10 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 2. Fondo del mapa
     // Usamos el espejo alemán de OpenStreetMap (más permisivo para GitHub Pages)
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19
-    }).addTo(mapa);
+    // Fondo estático (imagen de OpenStreetMap)
+    L.imageOverlay('https://www.openstreetmap.org/export/embed.html?bbox=-80.95%2C-2.30%2C-80.90%2C-2.25&layer=mapnik', 
+      [[-2.30, -80.95], [-2.25, -80.90]]).addTo(mapa);
 
     // 3. Grupo de marcadores
     grupoMarcadores = L.featureGroup();
