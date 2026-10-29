@@ -66,11 +66,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // ============================================
   // INICIALIZAR EL MAPA (CENTRADO EN EL USUARIO)
   // ============================================
+
   function initMapa() {
     // 1. Creamos el mapa con una vista inicial (Guayaquil)
     mapa = L.map('mapa-principal').setView([-2.1709, -79.9223], 12);
     
-    // 2. Cargamos el fondo del mapa (OpenStreetMap con configuración robusta)
+    // 2. Cargamos el fondo del mapa
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19,
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     grupoMarcadores = L.featureGroup();
     mapa.addLayer(grupoMarcadores);
 
-    // 4. Intentar obtener la ubicación del usuario para centrar el mapa
+    // 4. Intentar obtener la ubicación del usuario
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         function(position) {
@@ -89,10 +90,9 @@ document.addEventListener('DOMContentLoaded', function() {
             lat: position.coords.latitude,
             lon: position.coords.longitude
           };
-          // Centrar el mapa en el usuario
+          // Si el usuario acepta, centramos el mapa en su ubicación
           mapa.setView([posicionUsuario.lat, posicionUsuario.lon], 13);
           
-          // Opcional: Marcar la ubicación del usuario con un círculo
           L.circle([posicionUsuario.lat, posicionUsuario.lon], {
             color: '#1a3a5c',
             fillColor: '#1a3a5c',
@@ -143,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ============================================
   // DIBUJAR MARCADORES
   // ============================================
+
   function dibujarMarcadores(inmuebles) {
     grupoMarcadores.clearLayers();
     marcadores = [];
@@ -174,23 +175,21 @@ document.addEventListener('DOMContentLoaded', function() {
       grupoMarcadores.addLayer(marker);
       marcadores.push(marker);
     });
+
     // ============================================
-    // NUEVO: Ajustar el mapa para que se vean todos los marcadores
+    // AJUSTE CLAVE: Mostrar todos los marcadores en pantalla
     // ============================================
     if (marcadores.length > 0) {
-      // Creamos un grupo temporal para calcular los límites
       var group = L.featureGroup(marcadores);
       
-      // Si tenemos la ubicación del usuario, la incluimos también en el encuadre
+      // Si el usuario dio su ubicación, la incluimos
       if (posicionUsuario) {
         group.addLayer(L.marker([posicionUsuario.lat, posicionUsuario.lon]));
       }
       
-      // Ajustamos el mapa para que se vean todos los puntos con un margen del 20%
+      // Ajustar el mapa para que quepan todos los puntos (con un margen del 20%)
       mapa.fitBounds(group.getBounds().pad(0.2));
     }
-  
-
   }
 
   // ============================================
