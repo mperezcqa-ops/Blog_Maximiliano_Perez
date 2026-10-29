@@ -150,9 +150,17 @@ document.addEventListener('DOMContentLoaded', function() {
       marcadores.push(marker);
     });
     
+    // if (marcadores.length > 0) {
+    //   mapa.fitBounds(grupoMarcadores.getBounds());
+    // }
+        // Centrar el mapa en el primer marcador con un zoom moderado
     if (marcadores.length > 0) {
-      mapa.fitBounds(grupoMarcadores.getBounds());
+      var primerInmueble = inmuebles[0];
+      var lat = parseFloat(primerInmueble.lat);
+      var lon = parseFloat(primerInmueble.lon);
+      mapa.setView([lat, lon], 13); // Zoom 13 (nivel de ciudad)
     }
+    
   }
 
   document.getElementById('filtro-tipo').addEventListener('change', function() {
