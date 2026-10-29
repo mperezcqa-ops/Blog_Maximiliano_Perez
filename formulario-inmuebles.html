@@ -193,10 +193,18 @@ document.addEventListener('DOMContentLoaded', function() {
       maxFileSize: 5000000,
       cropping: true,
       croppingAspectRatio: 1.5
+
     }, (error, result) => {
       if (!error && result && result.event === "success") {
         var fotosInput = document.getElementById('fotos_url');
         var fotosActuales = fotosInput.value ? fotosInput.value.split(',') : [];
+        
+        // Validar que no se exceda el límite de fotos
+        if (fotosActuales.length >= maxFotos) {
+          alert('❌ Ya has subido el máximo de ' + maxFotos + ' foto' + (maxFotos > 1 ? 's' : '') + ' para este plan. Elimina una foto para subir otra.');
+          return;
+        }
+        
         fotosActuales.push(result.info.secure_url);
         fotosInput.value = fotosActuales.join(',');
         
