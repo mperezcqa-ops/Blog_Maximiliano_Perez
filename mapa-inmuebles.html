@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de Inmuebles - Visible Bienes Raíces</title>
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+.mapa-header {
+  background-color: #1a3a5c;
+  color: white;
+  padding: 1rem 2rem;
+  text-align: center;
+}
+.mapa-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+.mapa-header p {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.mapa-controles {
+  background: white;
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 1000;
+}
+.mapa-controles select {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+.btn-filtro {
+  background: #1a3a5c;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-filtro:hover {
+  background: #c9a961;
+  color: #1a3a5c;
+}
+.btn-filtro.activo {
+  background: #c9a961;
+  color: #1a3a5c;
+}
+.mensaje-filtro {
+  width: 100%;
+  text-align: center;
+  color: #1a3a5c;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  display: none;
+}
+
+#mapa-principal {
+  height: calc(100vh - 200px);
+  width: 100%;
+  z-index: 1;
+}
+
+/* Estilos para los popups del mapa */
+.popup-contenido {
+  max-width: 250px;
+}
+.popup-contenido h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1a3a5c;
+  font-size: 1.1rem;
+}
+.popup-contenido img {
+  width: 100%;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+.popup-contenido p {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+.popup-contenido .precio {
+  font-weight: 700;
+  color: #c9a961;
+  font-size: 1.1rem;
+}
+.popup-contenido .btn-contacto {
+  display: block;
+  background: #1a3a5c;
+  color: white;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.popup-contenido .btn-contacto:hover {
+  background: #c9a961;
+  color: #1a3a5c;
+}
+
+@media (max-width: 768px) {
+  .mapa-controles {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #mapa-principal {
+    height: calc(100vh - 250px);
+  }
+}
+</style>
+
+<!-- Leaflet CSS y JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+</head>
+<body>
+
+<div class="mapa-header">
+  <h1>🗺️ Mapa de Inmuebles y Servicios</h1>
+  <p>Encuentra propiedades y servicios cerca de ti</p>
+</div>
+
+<div class="mapa-controles">
+  <select id="filtro-tipo">
+    <option value="Todos">Todos los tipos</option>
+    <option value="Venta">Venta</option>
+    <option value="Renta">Renta</option>
+    <option value="Servicio">Servicio</option>
+    <option value="Producto">Producto</option>
+  </select>
+  
+  <button id="btn-cerca-de-mi" class="btn-filtro">
+    📍 Buscar cerca de mí (3 km)
+  </button>
+  
+  <div id="mensaje-filtro" class="mensaje-filtro"></div>
+</div>
+
+<div id="mapa-principal"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ⚠️ IMPORTANTE: Asegúrate de que esta sea la URL correcta de tu implementación
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpgKWbdwmtmYLj1z3AXm3_kUES-bLNOJSIznGT_XSNVX-PXbTHvEfnFc6b1cMOuopJRA/exec";
+
+  // ============================================
+  // VARIABLES GLOBALES
+  // ============================================
+  var mapa;
+  var todosLosInmuebles = [];
+  var marcadores = [];
+  var grupoMarcadores;
+  var filtroRadioActivo = false;
+  var posicionUsuario = null;
+
+  // ============================================
+  // INICIALIZAR EL MAPA
+  // ============================================
+  function initMapa() {
+    // Centrar el mapa en Guayaquil por defecto
+    mapa = L.map('mapa-principal').setView([-2.1709, -79.9223], 10);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(mapa);
+
+    // Grupo de marcadores (cluster)
+    grupoMarcadores = L.markerClusterGroup ? L.markerClusterGroup() : L.featureGroup();
+    mapa.addLayer(grupoMarcadores);
+
+    // Cargar los inmuebles desde el backend
+    cargarInmuebles();
+  }
+
+  // ============================================
+  // CARGAR INMUEBLES DESDE APPS SCRIPT
+  // ============================================
+  function cargarInmuebles() {
+    var url = APPS_SCRIPT_URL + '?accion=obtenerInmuebles';
+
+    fetch(url)
+      .then(function(response) { return response.json(); })
+      .then(function(inmuebles) {
+        todosLosInmuebles = inmuebles;
+        dibujarMarcadores(inmuebles);
+      })
+      .catch(function(error) {
+        console.error('Error al cargar inmuebles:', error);
+        alert('Hubo un error al cargar los inmuebles. Inténtalo de nuevo más tarde.');
+      });
+  }
+
+  // ============================================
+  // DIBUJAR MARCADORES EN EL MAPA
+  // ============================================
+  function dibujarMarcadores(inmuebles) {
+    // Limpiar el grupo de marcadores
+    grupoMarcadores.clearLayers();
+
+    inmuebles.forEach(function(inmueble) {
+      // Validar coordenadas
+      var lat = parseFloat(inmueble.lat);
+      var lon = parseFloat(inmueble.lon);
+      
+      if (isNaN(lat) || isNaN(lon)) return;
+
+      // Crear el contenido del popup
+      var popupHTML = '<div class="popup-contenido">';
+      popupHTML += '<h3>' + (inmueble.titulo || 'Sin título') + '</h3>';
+      
+      if (inmueble.fotos_url) {
+        popupHTML += '<img src="' + inmueble.fotos_url + '" alt="Foto del inmueble">';
+      }
+      
+      popupHTML += '<p><strong>Tipo:</strong> ' + (inmueble.tipo || 'No especificado') + '</p>';
+      popupHTML += '<p><strong>Precio:</strong> <span class="precio">$' + (inmueble.precio || 'Consultar') + '</span></p>';
+      popupHTML += '<p>' + (inmueble.descripcion || '') + '</p>';
+      popupHTML += '<p><strong>Contacto:</strong> ' + (inmueble.nombre_contacto || '') + '</p>';
+      
+      if (inmueble.telefono) {
+        popupHTML += '<a href="https://wa.me/' + inmueble.telefono.replace(/\D/g, '') + '" target="_blank" class="btn-contacto">📱 Contactar por WhatsApp</a>';
+      }
+      
+      popupHTML += '</div>';
+
+      // Crear el marcador
+      var marker = L.marker([lat, lon]);
+      marker.bindPopup(popupHTML);
+      
+      grupoMarcadores.addLayer(marker);
+      marcadores.push(marker);
+    });
+  }
+
+  // ============================================
+  // FILTRO POR TIPO
+  // ============================================
+  document.getElementById('filtro-tipo').addEventListener('change', function() {
+    var tipoSeleccionado = this.value;
+    var inmueblesFiltrados;
+
+    if (tipoSeleccionado === 'Todos') {
+      inmueblesFiltrados = todosLosInmuebles;
+    } else {
+      inmueblesFiltrados = todosLosInmuebles.filter(function(inmueble) {
+        return inmueble.tipo && inmueble.tipo.toLowerCase() === tipoSeleccionado.toLowerCase();
+      });
+    }
+
+    // Si el filtro de radio está activo, aplicar ambos filtros
+    if (filtroRadioActivo && posicionUsuario) {
+      inmueblesFiltrados = inmueblesFiltrados.filter(function(inmueble) {
+        var lat = parseFloat(inmueble.lat);
+        var lon = parseFloat(inmueble.lon);
+        var distancia = calcularDistancia(posicionUsuario.lat, posicionUsuario.lon, lat, lon);
+        return distancia <= 3; // 3 km
+      });
+    }
+
+    dibujarMarcadores(inmueblesFiltrados);
+  });
+
+  // ============================================
+  // BOTÓN "BUSCAR CERCA DE MÍ" (3 km)
+  // ============================================
+  document.getElementById('btn-cerca-de-mi').addEventListener('click', function() {
+    var btn = this;
+    var mensajeDiv = document.getElementById('mensaje-filtro');
+
+    // Si el filtro ya está activo, desactivarlo
+    if (filtroRadioActivo) {
+      filtroRadioActivo = false;
+      posicionUsuario = null;
+      btn.classList.remove('activo');
+      btn.innerHTML = '📍 Buscar cerca de mí (3 km)';
+      mensajeDiv.style.display = 'none';
+      dibujarMarcadores(todosLosInmuebles);
+      return;
+    }
+
+    // Activar filtro de radio
+    if (!navigator.geolocation) {
+      alert('Tu navegador no soporta geolocalización.');
+      return;
+    }
+
+    btn.innerHTML = '⏳ Obteniendo ubicación...';
+    btn.disabled = true;
+
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        posicionUsuario = {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        };
+
+        // Centrar el mapa en la ubicación del usuario
+        mapa.setView([posicionUsuario.lat, posicionUsuario.lon], 13);
+
+        // Filtrar inmuebles por distancia (3 km)
+        var inmueblesCercanos = todosLosInmuebles.filter(function(inmueble) {
+          var lat = parseFloat(inmueble.lat);
+          var lon = parseFloat(inmueble.lon);
+          
+          if (isNaN(lat) || isNaN(lon)) return false;
+          
+          var distancia = calcularDistancia(posicionUsuario.lat, posicionUsuario.lon, lat, lon);
+          return distancia <= 3; // 3 km
+        });
+
+        dibujarMarcadores(inmueblesCercanos);
+
+        // Mostrar mensaje
+        filtroRadioActivo = true;
+        btn.classList.add('activo');
+        btn.innerHTML = '❌ Quitar filtro de 3 km';
+        btn.disabled = false;
+        
+        mensajeDiv.style.display = 'block';
+        mensajeDiv.innerHTML = '📍 Mostrando ' + inmueblesCercanos.length + ' inmuebles en un radio de 3 km.';
+      },
+      function(error) {
+        console.error('Error de geolocalización:', error);
+        alert('No se pudo obtener tu ubicación. Por favor, permite el acceso a la ubicación en tu navegador.');
+        btn.innerHTML = '📍 Buscar cerca de mí (3 km)';
+        btn.disabled = false;
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
+  // ============================================
+  // FUNCIÓN DE HAVERSINE (Calcular distancia en km)
+  // ============================================
+  function calcularDistancia(lat1, lon1, lat2, lon2) {
+    var R = 6371; // Radio de la Tierra en km
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLon = (lon2 - lon1) * Math.PI / 180;
+    var a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  // ============================================
+  // INICIAR
+  // ============================================
+  initMapa();
+
+});
+</script>
+
+</body>
+</html>
