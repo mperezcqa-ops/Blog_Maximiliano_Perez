@@ -75,7 +75,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri',
-      maxZoom: 19
+      maxZoom: 19,
+      maxNativeZoom: 17  // <--- Limita el zoom nativo a 17
     }).addTo(mapa);
 
     // 3. Grupo de marcadores
