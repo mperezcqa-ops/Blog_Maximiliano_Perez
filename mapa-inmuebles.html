@@ -66,10 +66,11 @@ document.addEventListener('DOMContentLoaded', function() {
   function initMapa() {
     mapa = L.map('mapa-principal').setView([-2.1709, -79.9223], 10);
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri',
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19,
-      maxNativeZoom: 17  // <--- Limita el zoom nativo a 17 (donde Esri sí tiene imágenes)
+      subdomains: 'abc',
+      crossOrigin: true
     }).addTo(mapa);
 
     grupoMarcadores = L.featureGroup();
