@@ -206,18 +206,28 @@ document.addEventListener('DOMContentLoaded', function() {
   // CARGAR INMUEBLES DESDE APPS SCRIPT
   // ============================================
   function cargarInmuebles() {
-    var url = APPS_SCRIPT_URL + '?accion=obtenerInmuebles';
+    // Usamos JSONP para evitar problemas de CORS con Apps Script
+    var callbackName = 'jsonpCallback_' + Date.now();
+    
+    window[callbackName] = function(data) {
+      todosLosInmuebles = data;
+      dibujarMarcadores(data);
+      // Limpiar
+      delete window[callbackName];
+      document.body.removeChild(script);
+    };
 
-    fetch(url)
-      .then(function(response) { return response.json(); })
-      .then(function(inmuebles) {
-        todosLosInmuebles = inmuebles;
-        dibujarMarcadores(inmuebles);
-      })
-      .catch(function(error) {
-        console.error('Error al cargar inmuebles:', error);
-        alert('Hubo un error al cargar los inmuebles. Inténtalo de nuevo más tarde.');
-      });
+    var script = document.createElement('script');
+    script.src = APPS_SCRIPT_URL + '?accion=obtenerInmuebles&callback=' + callbackName;
+    
+    script.onerror = function() {
+      console.error('Error al cargar inmuebles con JSONP');
+      alert('Hubo un error al cargar los inmuebles. Inténtalo de nuevo más tarde.');
+      delete window[callbackName];
+      if (script.parentNode) document.body.removeChild(script);
+    };
+    
+    document.body.appendChild(script);
   }
 
   // ============================================
