@@ -93,7 +93,14 @@
 
 <fieldset>
 <legend>📍 Ubicación</legend>
-<p style="color: #666; margin-bottom: 0.5rem;">Haz clic en el mapa para seleccionar la ubicación exacta del inmueble.</p>
+<p style="color: #666; margin-bottom: 0.5rem;">Busca la dirección exacta o haz clic directamente en el mapa.</p>
+
+<!-- Buscador de direcciones -->
+<div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+  <input type="text" id="buscador-direccion" placeholder="Ej: Av. 9 de Octubre y Malecón, Guayaquil" style="flex: 1;">
+  <button type="button" id="btn-buscar-direccion" class="btn-enviar" style="width: auto; padding: 0.6rem 1.5rem;">🔍 Buscar</button>
+</div>
+
 <div id="mapa-seleccion"></div>
 <input type="hidden" id="lat" name="lat" required>
 <input type="hidden" id="lon" name="lon" required>
@@ -133,8 +140,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // WIDGET DE SUBIDA DE FOTOS (CLOUDINARY)
   // ============================================
   var myWidget = cloudinary.createUploadWidget({
-    cloudName: 'uky7jd5y',            // ✅ Tu Cloud Name
-    uploadPreset: 'inmuebles_preset', // ✅ Tu Upload Preset
+    cloudName: 'uky7jd5y',            
+    uploadPreset: 'inmuebles_preset', 
     sources: ['local', 'camera', 'url'],
     multiple: false,
     maxFileSize: 5000000, // 5MB
@@ -179,6 +186,51 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('lat').value = lat.toFixed(6);
     document.getElementById('lon').value = lon.toFixed(6);
     document.getElementById('coords-mostradas').innerText = '📍 Ubicación seleccionada: ' + lat.toFixed(4) + ', ' + lon.toFixed(4);
+  });
+
+  // ============================================
+  // BUSCADOR DE DIRECCIONES (Nominatim)
+  // ============================================
+  document.getElementById('btn-buscar-direccion').addEventListener('click', function() {
+    var direccion = document.getElementById('buscador-direccion').value.trim();
+    if (!direccion) {
+      alert('Por favor, escribe una dirección para buscar.');
+      return;
+    }
+
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(direccion) + '&limit=1';
+
+    fetch(url, {
+      headers: {
+        'User-Agent': 'VisibleBienesRaices/1.0 (mperezcqa@gmail.com)'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.length > 0) {
+        var lat = parseFloat(data[0].lat);
+        var lon = parseFloat(data[0].lon);
+        
+        mapa.setView([lat, lon], 16);
+        
+        if (marcador) {
+          marcador.setLatLng([lat, lon]);
+        } else {
+          marcador = L.marker([lat, lon]).addTo(mapa);
+        }
+        
+        document.getElementById('lat').value = lat.toFixed(6);
+        document.getElementById('lon').value = lon.toFixed(6);
+        document.getElementById('coords-mostradas').innerText = '📍 Ubicación seleccionada: ' + lat.toFixed(4) + ', ' + lon.toFixed(4);
+        
+      } else {
+        alert('No se encontró la dirección. Intenta ser más específico (incluye ciudad y país).');
+      }
+    })
+    .catch(error => {
+      console.error('Error al buscar dirección:', error);
+      alert('Hubo un error al buscar la dirección. Inténtalo de nuevo.');
+    });
   });
 
   // ============================================
