@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var posicionUsuario = null;
 
   // ============================================
-  // CARGAR INMUEBLES (JSONP)
+  // CARGAR INMUEBLES
   // ============================================
   function cargarInmuebles() {
     var callbackName = 'jsonpCallback_' + Date.now();
@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
       todosLosInmuebles = data;
       datosCargados = true;
       
-      // Habilitar el botón de búsqueda
       var btn = document.getElementById('btn-cerca-de-mi');
       btn.disabled = false;
       btn.innerHTML = '📍 Buscar inmuebles en 15 km';
@@ -136,8 +135,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // MOSTRAR LISTA
   // ============================================
   function mostrarLista(inmuebles) {
-    console.log('📋 Mostrando lista de inmuebles:', inmuebles.length, inmuebles); // <--- NUEVO
-
     var listaDiv = document.getElementById('lista-contenido');
     listaDiv.innerHTML = '';
     
@@ -205,9 +202,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var mensajeDiv = document.getElementById('mensaje-filtro');
     var iframe = document.getElementById('iframe-mapa');
     
-    // Verificar que los datos estén cargados
     if (!datosCargados) {
-      alert('Los inmuebles aún se están cargando. Espera un momento e inténtalo de nuevo.');
+      alert('Los inmuebles aún se están cargando. Espera un momento.');
       return;
     }
     
@@ -244,7 +240,6 @@ document.addEventListener('DOMContentLoaded', function() {
         var inmueblesCercanos = todosLosInmuebles.filter(function(inmueble) {
           var latI = parseFloat(inmueble.lat);
           var lonI = parseFloat(inmueble.lon);
-          
           if (isNaN(latI) || isNaN(lonI)) return false;
           var distancia = calcularDistancia(lat, lon, latI, lonI);
           return distancia <= 15;
