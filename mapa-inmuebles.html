@@ -242,9 +242,10 @@ document.addEventListener('DOMContentLoaded', function() {
           var lonI = parseFloat(inmueble.lon);
           if (isNaN(latI) || isNaN(lonI)) return false;
           var distancia = calcularDistancia(lat, lon, latI, lonI);
+          console.log('📏 Distancia a', inmueble.titulo, ':', distancia, 'km');
           return distancia <= 15;
         });
-        
+
         mostrarLista(inmueblesCercanos);
         
         mensajeDiv.style.display = 'block';
