@@ -104,6 +104,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var callbackName = 'jsonpCallback_' + Date.now();
     
     window[callbackName] = function(data) {
+      console.log('📥 Datos recibidos del backend:', data); // <--- NUEVO
+
       if (!Array.isArray(data)) {
         console.error('Los datos no son un array:', data);
         document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar los inmuebles.</div>';
@@ -243,6 +245,10 @@ document.addEventListener('DOMContentLoaded', function() {
           var distancia = calcularDistancia(lat, lon, latI, lonI);
           return distancia <= 10;
         });
+
+        console.log('📊 Total inmuebles:', todosLosInmuebles.length);
+        console.log('📊 Inmuebles en 10 km:', inmueblesCercanos.length); // <--- NUEVO
+        console.log('📊 Inmuebles cercanos:', inmueblesCercanos); // <--- NUEVO
         
         mostrarLista(inmueblesCercanos);
         
