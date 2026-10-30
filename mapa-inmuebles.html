@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var todosLosInmuebles = [];
   var posicionUsuario = null;
   var filtroActivo = false;
+  var ubicacionUsuario = null;
   var urlOriginalIframe = document.getElementById('iframe-mapa').src;
 
   // ============================================
@@ -200,9 +201,30 @@ document.addEventListener('DOMContentLoaded', function() {
     var mensajeDiv = document.getElementById('mensaje-filtro');
     var iframe = document.getElementById('iframe-mapa');
     
-    // Si el filtro está activo, desactivarlo y restaurar la vista original
+    // Si el filtro está activo, desactivarlo
     if (filtroActivo) {
-      iframe.src = urlOriginalIframe;
+      // Si tenemos la ubicación del usuario, mostrar un mapa que incluya al usuario y a los inmuebles
+      if (ubicacionUsuario) {
+        var latUser = ubicacionUsuario.lat;
+        var lonUser = ubicacionUsuario.lon;
+        
+        // Coordenadas del inmueble de Punta Carnero (ajusta si tienes más inmuebles)
+        var latInmueble = -2.263519;
+        var lonInmueble = -80.925650;
+        
+        // Calcular un bbox que incluya ambos puntos
+        var minLat = Math.min(latUser, latInmueble) - 0.1;
+        var maxLat = Math.max(latUser, latInmueble) + 0.1;
+        var minLon = Math.min(lonUser, lonInmueble) - 0.1;
+        var maxLon = Math.max(lonUser, lonInmueble) + 0.1;
+        
+        var bbox = minLon + ',' + minLat + ',' + maxLon + ',' + maxLat;
+        
+        iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik';
+      } else {
+        iframe.src = urlOriginalIframe;
+      }
+      
       mensajeDiv.style.display = 'none';
       btn.innerHTML = '📍 Buscar cerca de mí (3 km)';
       btn.classList.remove('activo');
@@ -210,6 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
+    // Si no hay geolocalización, salir
     if (!navigator.geolocation) {
       alert('Tu navegador no soporta geolocalización.');
       return;
@@ -222,6 +245,9 @@ document.addEventListener('DOMContentLoaded', function() {
       function(position) {
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
+        
+        // Guardar la ubicación del usuario
+        ubicacionUsuario = { lat: lat, lon: lon };
         
         var deltaLat = 3 / 111.0;
         var deltaLon = 3 / (111.0 * Math.cos(lat * Math.PI / 180));
