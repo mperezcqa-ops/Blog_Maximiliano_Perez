@@ -281,6 +281,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
     // ============================================
     // CALCULAR DISTANCIA (HAVERSINE CORREGIDA)
     // ============================================
+
     function calcularDistancia(lat1, lon1, lat2, lon2) {
       // Convertir a números
       var la1 = Number(lat1);
@@ -288,15 +289,19 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
       var la2 = Number(lat2);
       var lo2 = Number(lon2);
       
-      // Distancia euclidiana simple (aproximada para distancias cortas)
-      var dLat = (la2 - la1) * 111.0; // 1 grado latitud ≈ 111 km
+      // LOG DETALLADO
+      console.log('🧮 calcularDistancia recibió:', {la1, lo1, la2, lo2});
+      
+      // Distancia euclidiana simple
+      var dLat = (la2 - la1) * 111.0;
       var dLon = (lo2 - lo1) * 111.0 * Math.cos(la1 * Math.PI / 180);
       var distancia = Math.sqrt(dLat * dLat + dLon * dLon);
       
-      console.log('🧮 Cálculo simple:', la1, lo1, '->', la2, lo2, '| dLat:', dLat, '| dLon:', dLon, '| km:', distancia);
+      console.log('🧮 Cálculo:', {dLat, dLon, distancia});
       
       return distancia;
     }
+
     // Iniciar
     cargarInmuebles();
 
