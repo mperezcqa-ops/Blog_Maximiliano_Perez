@@ -14,6 +14,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 .mapa-controles select { padding: 0.6rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
 .btn-filtro { background: #1a3a5c; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
 .btn-filtro:hover { background: #c9a961; color: #1a3a5c; }
+.btn-filtro.activo { background: #c9a961; color: #1a3a5c; }
 .mensaje-filtro { width: 100%; text-align: center; color: #1a3a5c; font-weight: 600; margin-top: 0.5rem; display: none; }
 #iframe-mapa { width: 100%; height: calc(100vh - 250px); border: none; }
 @media (max-width: 768px) { .mapa-controles { flex-direction: column; align-items: stretch; } #iframe-mapa { height: calc(100vh - 300px); } }
@@ -93,27 +94,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var todosLosInmuebles = [];
   var posicionUsuario = null;
+  var filtroActivo = false;
+  var urlOriginalIframe = document.getElementById('iframe-mapa').src;
 
   // ============================================
   // CARGAR INMUEBLES (JSONP)
   // ============================================
   function cargarInmuebles() {
-    console.log('Cargando inmuebles desde:', APPS_SCRIPT_URL);
-    
     var callbackName = 'jsonpCallback_' + Date.now();
     
     window[callbackName] = function(data) {
-      console.log('Datos recibidos:', data);
-      
       if (!Array.isArray(data)) {
         console.error('Los datos no son un array:', data);
         document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar los inmuebles.</div>';
         return;
       }
-      
       todosLosInmuebles = data;
       mostrarLista(data);
-      
       delete window[callbackName];
       if (script.parentNode) document.body.removeChild(script);
     };
@@ -135,8 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // MOSTRAR LISTA DE INMUEBLES
   // ============================================
   function mostrarLista(inmuebles) {
-    console.log('Mostrando lista de inmuebles:', inmuebles.length);
-    
     var listaDiv = document.getElementById('lista-contenido');
     listaDiv.innerHTML = '';
     
@@ -158,11 +153,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ============================================
-  // MOSTRAR INFORMACIÓN EN EL PANEL
+  // MOSTRAR INFORMACIÓN EN EL PANEL Y CENTRAR MAPA
   // ============================================
   function mostrarInfo(inmueble) {
-    console.log('Mostrando información del inmueble:', inmueble);
-    
     document.getElementById('info-titulo').innerText = inmueble.titulo || 'Sin título';
     document.getElementById('info-precio').innerText = '$' + (inmueble.precio || 'Consultar');
     document.getElementById('info-descripcion').innerText = inmueble.descripcion || '';
@@ -172,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     var fotoImg = document.getElementById('info-foto');
     if (inmueble.fotos_url) {
-      fotoImg.src = inmueble.fotos_url;
+      fotoImg.src = inmueble.fotos_url.split(',')[0]; // Primera foto
       fotoImg.style.display = 'block';
     } else {
       fotoImg.style.display = 'none';
@@ -187,14 +180,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     document.getElementById('panel-info').classList.add('visible');
+
+    // Centrar el mapa en la ubicación del inmueble
+    if (inmueble.lat && inmueble.lon) {
+      var lat = parseFloat(inmueble.lat);
+      var lon = parseFloat(inmueble.lon);
+      var delta = 0.01;
+      var bbox = (lon - delta) + ',' + (lat - delta) + ',' + (lon + delta) + ',' + (lat + delta);
+      document.getElementById('iframe-mapa').src = 
+        'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
+    }
   }
 
   // ============================================
-  // BOTÓN "BUSCAR CERCA DE MÍ"
+  // BOTÓN "BUSCAR CERCA DE MÍ" (CON CORRECCIÓN)
   // ============================================
   document.getElementById('btn-cerca-de-mi').addEventListener('click', function() {
     var btn = this;
     var mensajeDiv = document.getElementById('mensaje-filtro');
+    var iframe = document.getElementById('iframe-mapa');
+    
+    // Si el filtro está activo, desactivarlo y restaurar la vista original
+    if (filtroActivo) {
+      iframe.src = urlOriginalIframe;
+      mensajeDiv.style.display = 'none';
+      btn.innerHTML = '📍 Buscar cerca de mí (3 km)';
+      btn.classList.remove('activo');
+      filtroActivo = false;
+      return;
+    }
     
     if (!navigator.geolocation) {
       alert('Tu navegador no soporta geolocalización.');
@@ -214,8 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var bbox = (lon - deltaLon) + ',' + (lat - deltaLat) + ',' + (lon + deltaLon) + ',' + (lat + deltaLat);
         
-        document.getElementById('iframe-mapa').src = 
-          'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
+        iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
         
         mensajeDiv.style.display = 'block';
         mensajeDiv.innerHTML = '📍 Mostrando inmuebles en un radio de 3 km desde tu ubicación.';
@@ -223,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.classList.add('activo');
         btn.innerHTML = '❌ Quitar filtro';
         btn.disabled = false;
+        filtroActivo = true;
       },
       function(error) {
         console.error('Error de geolocalización:', error);
