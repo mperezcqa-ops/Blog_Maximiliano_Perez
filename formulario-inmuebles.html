@@ -301,8 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var datos = {
       titulo: document.getElementById('titulo').value, tipo: document.getElementById('tipo').value, plan: plan,
       precio: document.getElementById('precio').value, fotos_url: document.getElementById('fotos_url').value,
-      descripcion: document.getElementById('descripcion').value, lat: document.getElementById('lat').value,
-      lon: document.getElementById('lon').value, nombre_contacto: document.getElementById('nombre_contacto').value,
+      descripcion: document.getElementById('descripcion').value, lat: parseFloat(document.getElementById('lat').value),
+      lon: parseFloat(document.getElementById('lon').value), nombre_contacto: document.getElementById('nombre_contacto').value,
       telefono: document.getElementById('telefono').value, email: document.getElementById('email').value
     };
     var params = []; for (var key in datos) { if (datos.hasOwnProperty(key)) { params.push(encodeURIComponent(key) + '=' + encodeURIComponent(datos[key])); } }
