@@ -224,6 +224,9 @@ document.addEventListener('DOMContentLoaded', function() {
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
         posicionUsuario = { lat: lat, lon: lon };
+
+        console.log('📍 UBICACIÓN DEL USUARIO:', lat, lon);
+
         
         // Calcular bounding box de 10 km
         var deltaLat = 10 / 111.0;
