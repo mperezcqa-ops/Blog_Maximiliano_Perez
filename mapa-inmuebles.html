@@ -242,6 +242,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var inmueblesCercanos = todosLosInmuebles.filter(function(inmueble) {
           var latI = parseFloat(inmueble.lat);
           var lonI = parseFloat(inmueble.lon);
+          
+          console.log('🔍 Inmueble:', inmueble.titulo, '| lat original:', inmueble.lat, '| lon original:', inmueble.lon);
+          console.log('🔍 Parseado:', latI, lonI, '| Tipo lat:', typeof inmueble.lat, '| Tipo lon:', typeof inmueble.lon);
+          
           if (isNaN(latI) || isNaN(lonI)) return false;
           var distancia = calcularDistancia(lat, lon, latI, lonI);
           console.log('📏 Distancia a', inmueble.titulo, ':', distancia, 'km');
