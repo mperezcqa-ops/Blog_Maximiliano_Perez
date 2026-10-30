@@ -16,30 +16,19 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 .btn-filtro:hover { background: #c9a961; color: #1a3a5c; }
 .btn-filtro.activo { background: #c9a961; color: #1a3a5c; }
 .mensaje-filtro { width: 100%; text-align: center; color: #1a3a5c; font-weight: 600; margin-top: 0.5rem; display: none; }
-#iframe-mapa { width: 100%; height: calc(100vh - 250px); border: none; }
-@media (max-width: 768px) { .mapa-controles { flex-direction: column; align-items: stretch; } #iframe-mapa { height: calc(100vh - 300px); } }
-
-/* Panel de información */
-.panel-info { background: white; padding: 1.5rem; margin: 1rem 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
-.panel-info.visible { display: block; }
-.panel-info h2 { color: #1a3a5c; margin: 0 0 1rem 0; font-size: 1.4rem; }
-.panel-info .precio { font-size: 1.5rem; color: #c9a961; font-weight: 700; margin-bottom: 1rem; }
-.panel-info img { max-width: 100%; border-radius: 8px; margin-bottom: 1rem; }
-.panel-info p { color: #333; line-height: 1.6; }
-.panel-info .btn-contacto { display: inline-block; background: #1a3a5c; color: white; text-align: center; padding: 0.8rem 1.5rem; border-radius: 6px; text-decoration: none; margin-top: 1rem; font-weight: 600; }
-.panel-info .btn-contacto:hover { background: #c9a961; color: #1a3a5c; }
-.panel-info .btn-cerrar { background: #ccc; color: #333; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; margin-bottom: 1rem; }
-.panel-info .btn-cerrar:hover { background: #999; }
-
-/* Lista de inmuebles */
-.lista-inmuebles { margin: 1rem 2rem; }
-.lista-inmuebles h3 { color: #1a3a5c; }
-.lista-inmuebles .inmueble-item { background: white; padding: 1rem; margin-bottom: 0.5rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-.lista-inmuebles .inmueble-item:hover { background: #f0f0f0; }
-.lista-inmuebles .inmueble-item .titulo { font-weight: 600; color: #1a3a5c; }
-.lista-inmuebles .inmueble-item .precio-item { color: #c9a961; font-weight: 700; }
-.lista-inmuebles .no-inmuebles { color: #666; font-style: italic; padding: 1rem; background: white; border-radius: 8px; text-align: center; }
+#mapa-principal { height: calc(100vh - 250px); width: 100%; z-index: 1; }
+.popup-contenido { max-width: 250px; }
+.popup-contenido h3 { margin: 0 0 0.5rem 0; color: #1a3a5c; font-size: 1.1rem; }
+.popup-contenido img { width: 100%; border-radius: 6px; margin-bottom: 0.5rem; }
+.popup-contenido p { margin: 0.3rem 0; font-size: 0.9rem; color: #333; }
+.popup-contenido .precio { font-weight: 700; color: #c9a961; font-size: 1.1rem; }
+.popup-contenido .btn-contacto { display: block; background: #1a3a5c; color: white; text-align: center; padding: 0.5rem; border-radius: 6px; text-decoration: none; margin-top: 0.5rem; font-weight: 600; font-size: 0.9rem; }
+.popup-contenido .btn-contacto:hover { background: #c9a961; color: #1a3a5c; }
+@media (max-width: 768px) { .mapa-controles { flex-direction: column; align-items: stretch; } #mapa-principal { height: calc(100vh - 300px); } }
 </style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -60,43 +49,38 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
   <div id="mensaje-filtro" class="mensaje-filtro"></div>
 </div>
 
-<!-- Iframe de OpenStreetMap -->
-<iframe id="iframe-mapa" 
-  src="https://www.openstreetmap.org/export/embed.html?bbox=-80.95%2C-2.30%2C-79.85%2C-2.10&layer=mapnik&marker=-2.263519%2C-80.925650"
-  frameborder="0">
-</iframe>
-
-<!-- Panel de información (inicialmente oculto) -->
-<div id="panel-info" class="panel-info">
-  <button class="btn-cerrar" onclick="document.getElementById('panel-info').classList.remove('visible')">✖ Cerrar</button>
-  <h2 id="info-titulo"></h2>
-  <div class="precio" id="info-precio"></div>
-  <img id="info-foto" src="" alt="" style="display:none;">
-  <p id="info-descripcion"></p>
-  <p><strong>Tipo:</strong> <span id="info-tipo"></span></p>
-  <p><strong>Contacto:</strong> <span id="info-contacto"></span></p>
-  <p><strong>Teléfono:</strong> <span id="info-telefono"></span></p>
-  <a id="info-whatsapp" href="#" target="_blank" class="btn-contacto">📱 Contactar por WhatsApp</a>
-</div>
-
-<!-- Lista de inmuebles -->
-<div id="lista-inmuebles" class="lista-inmuebles">
-  <h3>Inmuebles disponibles</h3>
-  <div id="lista-contenido">
-    <div class="no-inmuebles">Cargando inmuebles...</div>
-  </div>
-</div>
+<div id="mapa-principal"></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
   var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpgKWbdwmtmYLj1z3AXm3_kUES-bLNOJSIznGT_XSNVX-PXbTHvEfnFc6b1cMOuopJRA/exec";
 
+  var mapa;
   var todosLosInmuebles = [];
+  var marcadores = [];
+  var grupoMarcadores;
+  var filtroRadioActivo = false;
   var posicionUsuario = null;
-  var filtroActivo = false;
-  var ubicacionUsuario = null;
-  var urlOriginalIframe = document.getElementById('iframe-mapa').src;
+
+  // ============================================
+  // INICIALIZAR EL MAPA CON PROXY CORS
+  // ============================================
+  function initMapa() {
+    mapa = L.map('mapa-principal').setView([-2.1709, -79.9223], 11);
+    
+    // Usamos allorigins.win como proxy CORS
+    L.tileLayer('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://tile.openstreetmap.org/{z}/{x}/{y}.png'), {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19,
+      maxNativeZoom: 17
+    }).addTo(mapa);
+
+    grupoMarcadores = L.featureGroup();
+    mapa.addLayer(grupoMarcadores);
+
+    cargarInmuebles();
+  }
 
   // ============================================
   // CARGAR INMUEBLES (JSONP)
@@ -107,11 +91,10 @@ document.addEventListener('DOMContentLoaded', function() {
     window[callbackName] = function(data) {
       if (!Array.isArray(data)) {
         console.error('Los datos no son un array:', data);
-        document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar los inmuebles.</div>';
         return;
       }
       todosLosInmuebles = data;
-      mostrarLista(data);
+      dibujarMarcadores(data);
       delete window[callbackName];
       if (script.parentNode) document.body.removeChild(script);
     };
@@ -121,7 +104,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     script.onerror = function() {
       console.error('Error al cargar inmuebles con JSONP');
-      document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error de conexión al cargar los inmuebles.</div>';
       delete window[callbackName];
       if (script.parentNode) document.body.removeChild(script);
     };
@@ -130,89 +112,91 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ============================================
-  // MOSTRAR LISTA DE INMUEBLES
+  // DIBUJAR MARCADORES Y AJUSTAR EL MAPA
   // ============================================
-  function mostrarLista(inmuebles) {
-    var listaDiv = document.getElementById('lista-contenido');
-    listaDiv.innerHTML = '';
-    
-    if (inmuebles.length === 0) {
-      listaDiv.innerHTML = '<div class="no-inmuebles">No hay inmuebles disponibles en este momento.</div>';
-      return;
-    }
+  function dibujarMarcadores(inmuebles) {
+    grupoMarcadores.clearLayers();
+    marcadores = [];
     
     inmuebles.forEach(function(inmueble) {
-      var item = document.createElement('div');
-      item.className = 'inmueble-item';
-      item.innerHTML = '<span class="titulo">' + (inmueble.titulo || 'Sin título') + '</span>' +
-                       '<span class="precio-item">$' + (inmueble.precio || 'Consultar') + '</span>';
-      item.addEventListener('click', function() {
-        mostrarInfo(inmueble);
-      });
-      listaDiv.appendChild(item);
-    });
-  }
-
-  // ============================================
-  // MOSTRAR INFORMACIÓN EN EL PANEL Y CENTRAR MAPA
-  // ============================================
-  function mostrarInfo(inmueble) {
-    document.getElementById('info-titulo').innerText = inmueble.titulo || 'Sin título';
-    document.getElementById('info-precio').innerText = '$' + (inmueble.precio || 'Consultar');
-    document.getElementById('info-descripcion').innerText = inmueble.descripcion || '';
-    document.getElementById('info-tipo').innerText = inmueble.tipo || 'No especificado';
-    document.getElementById('info-contacto').innerText = inmueble.nombre_contacto || '';
-    document.getElementById('info-telefono').innerText = inmueble.telefono || '';
-    
-    var fotoImg = document.getElementById('info-foto');
-    if (inmueble.fotos_url) {
-      fotoImg.src = inmueble.fotos_url.split(',')[0]; // Primera foto
-      fotoImg.style.display = 'block';
-    } else {
-      fotoImg.style.display = 'none';
-    }
-    
-    var telefonoTexto = String(inmueble.telefono || '').replace(/\D/g, '');
-    if (telefonoTexto) {
-      document.getElementById('info-whatsapp').href = 'https://wa.me/' + telefonoTexto;
-      document.getElementById('info-whatsapp').style.display = 'inline-block';
-    } else {
-      document.getElementById('info-whatsapp').style.display = 'none';
-    }
-    
-    document.getElementById('panel-info').classList.add('visible');
-
-    // Centrar el mapa en la ubicación del inmueble con un bbox más amplio
-    if (inmueble.lat && inmueble.lon) {
       var lat = parseFloat(inmueble.lat);
       var lon = parseFloat(inmueble.lon);
-      var delta = 0.05; // Aumentamos el delta para que el servidor tenga tiles disponibles
-      var bbox = (lon - delta) + ',' + (lat - delta) + ',' + (lon + delta) + ',' + (lat + delta);
-      document.getElementById('iframe-mapa').src = 
-        'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
+      
+      if (isNaN(lat) || isNaN(lon)) return;
+
+      var popupHTML = '<div class="popup-contenido">';
+      popupHTML += '<h3>' + (inmueble.titulo || 'Sin título') + '</h3>';
+      if (inmueble.fotos_url) {
+        popupHTML += '<img src="' + inmueble.fotos_url.split(',')[0] + '" alt="Foto">';
+      }
+      popupHTML += '<p><strong>Tipo:</strong> ' + (inmueble.tipo || 'No especificado') + '</p>';
+      popupHTML += '<p><strong>Precio:</strong> <span class="precio">$' + (inmueble.precio || 'Consultar') + '</span></p>';
+      popupHTML += '<p>' + (inmueble.descripcion || '') + '</p>';
+      popupHTML += '<p><strong>Contacto:</strong> ' + (inmueble.nombre_contacto || '') + '</p>';
+      
+      var telefonoTexto = String(inmueble.telefono || '').replace(/\D/g, '');
+      if (telefonoTexto) {
+        popupHTML += '<a href="https://wa.me/' + telefonoTexto + '" target="_blank" class="btn-contacto">📱 Contactar por WhatsApp</a>';
+      }
+      popupHTML += '</div>';
+
+      var marker = L.marker([lat, lon]);
+      marker.bindPopup(popupHTML);
+      grupoMarcadores.addLayer(marker);
+      marcadores.push(marker);
+    });
+
+    // Ajustar el mapa para mostrar todos los marcadores
+    if (marcadores.length > 0) {
+      var group = L.featureGroup(marcadores);
+      if (posicionUsuario) {
+        group.addLayer(L.marker([posicionUsuario.lat, posicionUsuario.lon]));
+      }
+      mapa.fitBounds(group.getBounds().pad(0.2));
     }
   }
 
   // ============================================
-  // BOTÓN "BUSCAR CERCA DE MÍ" (CON CORRECCIÓN)
+  // FILTRO POR TIPO
+  // ============================================
+  document.getElementById('filtro-tipo').addEventListener('change', function() {
+    var tipoSeleccionado = this.value;
+    var inmueblesFiltrados;
+    if (tipoSeleccionado === 'Todos') {
+      inmueblesFiltrados = todosLosInmuebles;
+    } else {
+      inmueblesFiltrados = todosLosInmuebles.filter(function(inmueble) {
+        return inmueble.tipo && inmueble.tipo.toLowerCase() === tipoSeleccionado.toLowerCase();
+      });
+    }
+    if (filtroRadioActivo && posicionUsuario) {
+      inmueblesFiltrados = inmueblesFiltrados.filter(function(inmueble) {
+        var lat = parseFloat(inmueble.lat);
+        var lon = parseFloat(inmueble.lon);
+        var distancia = calcularDistancia(posicionUsuario.lat, posicionUsuario.lon, lat, lon);
+        return distancia <= 3;
+      });
+    }
+    dibujarMarcadores(inmueblesFiltrados);
+  });
+
+  // ============================================
+  // BOTÓN "BUSCAR CERCA DE MÍ"
   // ============================================
   document.getElementById('btn-cerca-de-mi').addEventListener('click', function() {
     var btn = this;
     var mensajeDiv = document.getElementById('mensaje-filtro');
-    var iframe = document.getElementById('iframe-mapa');
     
-    // Si el filtro está activo, desactivarlo
-    if (filtroActivo) {
-      // Restaurar la vista original (que muestra Punta Carnero)
-      iframe.src = urlOriginalIframe;
-      mensajeDiv.style.display = 'none';
-      btn.innerHTML = '📍 Buscar cerca de mí (3 km)';
+    if (filtroRadioActivo) {
+      filtroRadioActivo = false;
+      posicionUsuario = null;
       btn.classList.remove('activo');
-      filtroActivo = false;
+      btn.innerHTML = '📍 Buscar cerca de mí (3 km)';
+      mensajeDiv.style.display = 'none';
+      dibujarMarcadores(todosLosInmuebles);
       return;
     }
     
-    // Si no hay geolocalización, salir
     if (!navigator.geolocation) {
       alert('Tu navegador no soporta geolocalización.');
       return;
@@ -223,26 +207,32 @@ document.addEventListener('DOMContentLoaded', function() {
     
     navigator.geolocation.getCurrentPosition(
       function(position) {
-        var lat = position.coords.latitude;
-        var lon = position.coords.longitude;
+        posicionUsuario = { lat: position.coords.latitude, lon: position.coords.longitude };
+        mapa.setView([posicionUsuario.lat, posicionUsuario.lon], 14);
         
-        // Guardar la ubicación del usuario
-        ubicacionUsuario = { lat: lat, lon: lon };
+        L.circle([posicionUsuario.lat, posicionUsuario.lon], {
+          color: '#1a3a5c',
+          fillColor: '#1a3a5c',
+          fillOpacity: 0.2,
+          radius: 300
+        }).addTo(mapa);
         
-        var deltaLat = 3 / 111.0;
-        var deltaLon = 3 / (111.0 * Math.cos(lat * Math.PI / 180));
+        var inmueblesCercanos = todosLosInmuebles.filter(function(inmueble) {
+          var lat = parseFloat(inmueble.lat);
+          var lon = parseFloat(inmueble.lon);
+          if (isNaN(lat) || isNaN(lon)) return false;
+          var distancia = calcularDistancia(posicionUsuario.lat, posicionUsuario.lon, lat, lon);
+          return distancia <= 3;
+        });
         
-        var bbox = (lon - deltaLon) + ',' + (lat - deltaLat) + ',' + (lon + deltaLon) + ',' + (lat + deltaLat);
+        dibujarMarcadores(inmueblesCercanos);
         
-        iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
-        
-        mensajeDiv.style.display = 'block';
-        mensajeDiv.innerHTML = '📍 Mostrando inmuebles en un radio de 3 km desde tu ubicación.';
-        
+        filtroRadioActivo = true;
         btn.classList.add('activo');
         btn.innerHTML = '❌ Quitar filtro';
         btn.disabled = false;
-        filtroActivo = true;
+        mensajeDiv.style.display = 'block';
+        mensajeDiv.innerHTML = '📍 Mostrando ' + inmueblesCercanos.length + ' inmuebles en un radio de 3 km.';
       },
       function(error) {
         console.error('Error de geolocalización:', error);
@@ -254,11 +244,20 @@ document.addEventListener('DOMContentLoaded', function() {
     );
   });
 
-  // Iniciar
-  cargarInmuebles();
+  // ============================================
+  // CALCULAR DISTANCIA (HAVERSINE)
+  // ============================================
+  function calcularDistancia(lat1, lon1, lat2, lon2) {
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLon = (lon2 - lon1) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
 
+  initMapa();
 });
 </script>
-
 </body>
 </html>
