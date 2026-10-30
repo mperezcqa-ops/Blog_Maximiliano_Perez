@@ -182,11 +182,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('panel-info').classList.add('visible');
 
-    // Centrar el mapa en la ubicación del inmueble
+    // Centrar el mapa en la ubicación del inmueble con un bbox más amplio
     if (inmueble.lat && inmueble.lon) {
       var lat = parseFloat(inmueble.lat);
       var lon = parseFloat(inmueble.lon);
-      var delta = 0.01;
+      var delta = 0.05; // Aumentamos el delta para que el servidor tenga tiles disponibles
       var bbox = (lon - delta) + ',' + (lat - delta) + ',' + (lon + delta) + ',' + (lat + delta);
       document.getElementById('iframe-mapa').src = 
         'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
@@ -203,28 +203,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Si el filtro está activo, desactivarlo
     if (filtroActivo) {
-      // Si tenemos la ubicación del usuario, mostrar un mapa que incluya al usuario y a los inmuebles
-      if (ubicacionUsuario) {
-        var latUser = ubicacionUsuario.lat;
-        var lonUser = ubicacionUsuario.lon;
-        
-        // Coordenadas del inmueble de Punta Carnero (ajusta si tienes más inmuebles)
-        var latInmueble = -2.263519;
-        var lonInmueble = -80.925650;
-        
-        // Calcular un bbox que incluya ambos puntos
-        var minLat = Math.min(latUser, latInmueble) - 0.1;
-        var maxLat = Math.max(latUser, latInmueble) + 0.1;
-        var minLon = Math.min(lonUser, lonInmueble) - 0.1;
-        var maxLon = Math.max(lonUser, lonInmueble) + 0.1;
-        
-        var bbox = minLon + ',' + minLat + ',' + maxLon + ',' + maxLat;
-        
-        iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik';
-      } else {
-        iframe.src = urlOriginalIframe;
-      }
-      
+      // Restaurar la vista original (que muestra Punta Carnero)
+      iframe.src = urlOriginalIframe;
       mensajeDiv.style.display = 'none';
       btn.innerHTML = '📍 Buscar cerca de mí (3 km)';
       btn.classList.remove('activo');
