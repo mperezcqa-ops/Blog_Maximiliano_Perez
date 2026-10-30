@@ -85,224 +85,215 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// Envolvemos todo en una función autoejecutable para evitar contaminación global
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
 
-  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpgKWbdwmtmYLj1z3AXm3_kUES-bLNOJSIznGT_XSNVX-PXbTHvEfnFc6b1cMOuopJRA/exec";
+    var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpgKWbdwmtmYLj1z3AXm3_kUES-bLNOJSIznGT_XSNVX-PXbTHvEfnFc6b1cMOuopJRA/exec";
 
-  var todosLosInmuebles = [];
-  var datosCargados = false;
-  var filtroActivo = false;
-  var posicionUsuario = null;
+    var todosLosInmuebles = [];
+    var datosCargados = false;
+    var filtroActivo = false;
 
-  // ============================================
-  // CARGAR INMUEBLES
-  // ============================================
-  function cargarInmuebles() {
-    var callbackName = 'jsonpCallback_' + Date.now();
-    
-    window[callbackName] = function(data) {
-      if (!Array.isArray(data)) {
-        console.error('Los datos no son un array:', data);
-        document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar los inmuebles.</div>';
+    // ============================================
+    // CARGAR INMUEBLES
+    // ============================================
+    function cargarInmuebles() {
+      var callbackName = 'jsonpCallback_' + Date.now();
+      
+      window[callbackName] = function(data) {
+        if (!Array.isArray(data)) {
+          console.error('Los datos no son un array:', data);
+          document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar los inmuebles.</div>';
+          return;
+        }
+        todosLosInmuebles = data;
+        datosCargados = true;
+        
+        var btn = document.getElementById('btn-cerca-de-mi');
+        btn.disabled = false;
+        btn.innerHTML = '📍 Buscar inmuebles en 15 km';
+        
+        mostrarLista(data);
+        delete window[callbackName];
+        if (script.parentNode) document.body.removeChild(script);
+      };
+
+      var script = document.createElement('script');
+      script.src = APPS_SCRIPT_URL + '?accion=obtenerInmuebles&callback=' + callbackName;
+      
+      script.onerror = function() {
+        console.error('Error al cargar inmuebles con JSONP');
+        document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error de conexión.</div>';
+        delete window[callbackName];
+        if (script.parentNode) document.body.removeChild(script);
+      };
+      
+      document.body.appendChild(script);
+    }
+
+    // ============================================
+    // MOSTRAR LISTA
+    // ============================================
+    function mostrarLista(inmuebles) {
+      var listaDiv = document.getElementById('lista-contenido');
+      listaDiv.innerHTML = '';
+      
+      if (inmuebles.length === 0) {
+        listaDiv.innerHTML = '<div class="no-inmuebles">No hay inmuebles disponibles en este radio.</div>';
         return;
       }
-      todosLosInmuebles = data;
-      datosCargados = true;
       
-      var btn = document.getElementById('btn-cerca-de-mi');
-      btn.disabled = false;
-      btn.innerHTML = '📍 Buscar inmuebles en 15 km';
-      
-      mostrarLista(data);
-      delete window[callbackName];
-      if (script.parentNode) document.body.removeChild(script);
-    };
-
-    var script = document.createElement('script');
-    script.src = APPS_SCRIPT_URL + '?accion=obtenerInmuebles&callback=' + callbackName;
-    
-    script.onerror = function() {
-      console.error('Error al cargar inmuebles con JSONP');
-      document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error de conexión.</div>';
-      delete window[callbackName];
-      if (script.parentNode) document.body.removeChild(script);
-    };
-    
-    document.body.appendChild(script);
-  }
-
-  // ============================================
-  // MOSTRAR LISTA
-  // ============================================
-  function mostrarLista(inmuebles) {
-    var listaDiv = document.getElementById('lista-contenido');
-    listaDiv.innerHTML = '';
-    
-    if (inmuebles.length === 0) {
-      listaDiv.innerHTML = '<div class="no-inmuebles">No hay inmuebles disponibles en este radio.</div>';
-      return;
-    }
-    
-    inmuebles.forEach(function(inmueble) {
-      var item = document.createElement('div');
-      item.className = 'inmueble-item';
-      item.innerHTML = '<span class="titulo">' + (inmueble.titulo || 'Sin título') + '</span>' +
-                       '<span class="precio-item">$' + (inmueble.precio || 'Consultar') + '</span>';
-      item.addEventListener('click', function() {
-        mostrarInfo(inmueble);
-      });
-      listaDiv.appendChild(item);
-    });
-  }
-
-  // ============================================
-  // MOSTRAR INFO
-  // ============================================
-  function mostrarInfo(inmueble) {
-    document.getElementById('info-titulo').innerText = inmueble.titulo || 'Sin título';
-    document.getElementById('info-precio').innerText = '$' + (inmueble.precio || 'Consultar');
-    document.getElementById('info-descripcion').innerText = inmueble.descripcion || '';
-    document.getElementById('info-tipo').innerText = inmueble.tipo || 'No especificado';
-    document.getElementById('info-contacto').innerText = inmueble.nombre_contacto || '';
-    document.getElementById('info-telefono').innerText = inmueble.telefono || '';
-    
-    var fotoImg = document.getElementById('info-foto');
-    if (inmueble.fotos_url) {
-      fotoImg.src = inmueble.fotos_url.split(',')[0];
-      fotoImg.style.display = 'block';
-    } else {
-      fotoImg.style.display = 'none';
-    }
-    
-    var telefonoTexto = String(inmueble.telefono || '').replace(/\D/g, '');
-    if (telefonoTexto) {
-      document.getElementById('info-whatsapp').href = 'https://wa.me/' + telefonoTexto;
-      document.getElementById('info-whatsapp').style.display = 'inline-block';
-    } else {
-      document.getElementById('info-whatsapp').style.display = 'none';
-    }
-    
-    document.getElementById('panel-info').classList.add('visible');
-
-    if (inmueble.lat && inmueble.lon) {
-      var lat = parseFloat(inmueble.lat);
-      var lon = parseFloat(inmueble.lon);
-      var delta = 0.02;
-      var bbox = (lon - delta) + ',' + (lat - delta) + ',' + (lon + delta) + ',' + (lat + delta);
-      document.getElementById('iframe-mapa').src = 
-        'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
-    }
-  }
-
-  // ============================================
-  // BOTÓN "BUSCAR EN 15 KM"
-  // ============================================
-  document.getElementById('btn-cerca-de-mi').addEventListener('click', function() {
-    var btn = this;
-    var mensajeDiv = document.getElementById('mensaje-filtro');
-    var iframe = document.getElementById('iframe-mapa');
-    
-    if (!datosCargados) {
-      alert('Los inmuebles aún se están cargando. Espera un momento.');
-      return;
-    }
-    
-    if (filtroActivo) {
-      iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=-80.95%2C-2.30%2C-79.85%2C-2.10&layer=mapnik';
-      mensajeDiv.style.display = 'none';
-      btn.innerHTML = '📍 Buscar inmuebles en 15 km';
-      btn.classList.remove('activo');
-      filtroActivo = false;
-      mostrarLista(todosLosInmuebles);
-      return;
-    }
-    
-    if (!navigator.geolocation) {
-      alert('Tu navegador no soporta geolocalización.');
-      return;
-    }
-    
-    btn.innerHTML = '⏳ Obteniendo ubicación...';
-    btn.disabled = true;
-    
-    navigator.geolocation.getCurrentPosition(
-      function(position) {
-        var lat = position.coords.latitude;
-        var lon = position.coords.longitude;
-        posicionUsuario = { lat: lat, lon: lon };
-        console.log('📍 UBICACIÓN DEL USUARIO:', lat, lon);
-
-        
-        var deltaLat = 15 / 111.0;
-        var deltaLon = 15 / (111.0 * Math.cos(lat * Math.PI / 180));
-        var bbox = (lon - deltaLon) + ',' + (lat - deltaLat) + ',' + (lon + deltaLon) + ',' + (lat + deltaLat);
-        
-        iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
-        
-        var inmueblesCercanos = todosLosInmuebles.filter(function(inmueble) {
-          var latI = parseFloat(inmueble.lat);
-          var lonI = parseFloat(inmueble.lon);
-          
-          console.log('🔍 Inmueble:', inmueble.titulo, '| lat original:', inmueble.lat, '| lon original:', inmueble.lon);
-          console.log('🔍 Parseado:', latI, lonI, '| Tipo lat:', typeof inmueble.lat, '| Tipo lon:', typeof inmueble.lon);
-          
-          if (isNaN(latI) || isNaN(lonI)) return false;
-          var distancia = calcularDistancia(lat, lon, latI, lonI);
-          console.log('📏 Distancia a', inmueble.titulo, ':', distancia, 'km');
-          return distancia <= 15;
+      inmuebles.forEach(function(inmueble) {
+        var item = document.createElement('div');
+        item.className = 'inmueble-item';
+        item.innerHTML = '<span class="titulo">' + (inmueble.titulo || 'Sin título') + '</span>' +
+                         '<span class="precio-item">$' + (inmueble.precio || 'Consultar') + '</span>';
+        item.addEventListener('click', function() {
+          mostrarInfo(inmueble);
         });
+        listaDiv.appendChild(item);
+      });
+    }
 
-        mostrarLista(inmueblesCercanos);
-        
-        mensajeDiv.style.display = 'block';
-        mensajeDiv.innerHTML = '📍 Mostrando ' + inmueblesCercanos.length + ' inmuebles en un radio de 15 km (Ciudad de 15 minutos).';
-        
-        btn.classList.add('activo');
-        btn.innerHTML = '❌ Quitar filtro';
-        btn.disabled = false;
-        filtroActivo = true;
-      },
-      function(error) {
-        console.error('Error de geolocalización:', error);
-        alert('No se pudo obtener tu ubicación. Permite el acceso en tu navegador.');
+    // ============================================
+    // MOSTRAR INFO
+    // ============================================
+    function mostrarInfo(inmueble) {
+      document.getElementById('info-titulo').innerText = inmueble.titulo || 'Sin título';
+      document.getElementById('info-precio').innerText = '$' + (inmueble.precio || 'Consultar');
+      document.getElementById('info-descripcion').innerText = inmueble.descripcion || '';
+      document.getElementById('info-tipo').innerText = inmueble.tipo || 'No especificado';
+      document.getElementById('info-contacto').innerText = inmueble.nombre_contacto || '';
+      document.getElementById('info-telefono').innerText = inmueble.telefono || '';
+      
+      var fotoImg = document.getElementById('info-foto');
+      if (inmueble.fotos_url) {
+        fotoImg.src = inmueble.fotos_url.split(',')[0];
+        fotoImg.style.display = 'block';
+      } else {
+        fotoImg.style.display = 'none';
+      }
+      
+      var telefonoTexto = String(inmueble.telefono || '').replace(/\D/g, '');
+      if (telefonoTexto) {
+        document.getElementById('info-whatsapp').href = 'https://wa.me/' + telefonoTexto;
+        document.getElementById('info-whatsapp').style.display = 'inline-block';
+      } else {
+        document.getElementById('info-whatsapp').style.display = 'none';
+      }
+      
+      document.getElementById('panel-info').classList.add('visible');
+
+      if (inmueble.lat && inmueble.lon) {
+        var latI = parseFloat(inmueble.lat);
+        var lonI = parseFloat(inmueble.lon);
+        var delta = 0.02;
+        var bbox = (lonI - delta) + ',' + (latI - delta) + ',' + (lonI + delta) + ',' + (latI + delta);
+        document.getElementById('iframe-mapa').src = 
+          'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + latI + ',' + lonI;
+      }
+    }
+
+    // ============================================
+    // BOTÓN "BUSCAR EN 15 KM"
+    // ============================================
+    document.getElementById('btn-cerca-de-mi').addEventListener('click', function() {
+      var btn = this;
+      var mensajeDiv = document.getElementById('mensaje-filtro');
+      var iframe = document.getElementById('iframe-mapa');
+      
+      if (!datosCargados) {
+        alert('Los inmuebles aún se están cargando. Espera un momento.');
+        return;
+      }
+      
+      if (filtroActivo) {
+        iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=-80.95%2C-2.30%2C-79.85%2C-2.10&layer=mapnik';
+        mensajeDiv.style.display = 'none';
         btn.innerHTML = '📍 Buscar inmuebles en 15 km';
-        btn.disabled = false;
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+        btn.classList.remove('activo');
+        filtroActivo = false;
+        mostrarLista(todosLosInmuebles);
+        return;
+      }
+      
+      if (!navigator.geolocation) {
+        alert('Tu navegador no soporta geolocalización.');
+        return;
+      }
+      
+      btn.innerHTML = '⏳ Obteniendo ubicación...';
+      btn.disabled = true;
+      
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          var userLat = position.coords.latitude;
+          var userLon = position.coords.longitude;
+          
+          console.log('📍 UBICACIÓN DEL USUARIO:', userLat, userLon);
+          
+          var deltaLat = 15 / 111.0;
+          var deltaLon = 15 / (111.0 * Math.cos(userLat * Math.PI / 180));
+          var bbox = (userLon - deltaLon) + ',' + (userLat - deltaLat) + ',' + (userLon + deltaLon) + ',' + (userLat + deltaLat);
+          
+          iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + userLat + ',' + userLon;
+          
+          var inmueblesCercanos = todosLosInmuebles.filter(function(inmueble) {
+            var latI = parseFloat(inmueble.lat);
+            var lonI = parseFloat(inmueble.lon);
+            if (isNaN(latI) || isNaN(lonI)) return false;
+            var distancia = calcularDistancia(userLat, userLon, latI, lonI);
+            console.log('📏 Distancia a', inmueble.titulo, ':', distancia, 'km');
+            return distancia <= 15;
+          });
+          
+          mostrarLista(inmueblesCercanos);
+          
+          mensajeDiv.style.display = 'block';
+          mensajeDiv.innerHTML = '📍 Mostrando ' + inmueblesCercanos.length + ' inmuebles en un radio de 15 km (Ciudad de 15 minutos).';
+          
+          btn.classList.add('activo');
+          btn.innerHTML = '❌ Quitar filtro';
+          btn.disabled = false;
+          filtroActivo = true;
+        },
+        function(error) {
+          console.error('Error de geolocalización:', error);
+          alert('No se pudo obtener tu ubicación. Permite el acceso en tu navegador.');
+          btn.innerHTML = '📍 Buscar inmuebles en 15 km';
+          btn.disabled = false;
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    // ============================================
+    // CALCULAR DISTANCIA (HAVERSINE CORREGIDA)
+    // ============================================
+    function calcularDistancia(lat1, lon1, lat2, lon2) {
+      var rad = Math.PI / 180;
+      var lat1Rad = lat1 * rad;
+      var lon1Rad = lon1 * rad;
+      var lat2Rad = lat2 * rad;
+      var lon2Rad = lon2 * rad;
+      
+      var dLat = lat2Rad - lat1Rad;
+      var dLon = lon2Rad - lon1Rad;
+      
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      
+      return 6371 * c;
+    }
+
+    // Iniciar
+    cargarInmuebles();
+
   });
-
-  // ============================================
-  // CALCULAR DISTANCIA
-  // ============================================
-
-  function calcularDistancia(lat1, lon1, lat2, lon2) {
-    // Convertir a radianes
-    var rad = Math.PI / 180;
-    var lat1Rad = lat1 * rad;
-    var lon1Rad = lon1 * rad;
-    var lat2Rad = lat2 * rad;
-    var lon2Rad = lon2 * rad;
-    
-    // Diferencia de coordenadas
-    var dLat = lat2Rad - lat1Rad;
-    var dLon = lon2Rad - lon1Rad;
-    
-    // Fórmula de Haversine
-    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    
-    // Radio de la Tierra en km
-    var R = 6371;
-    return R * c;
-  }
-
-  // Iniciar
-  cargarInmuebles();
-
-});
+})();
 </script>
 </body>
 </html>
