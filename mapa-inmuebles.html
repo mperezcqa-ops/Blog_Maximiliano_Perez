@@ -104,8 +104,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var callbackName = 'jsonpCallback_' + Date.now();
     
     window[callbackName] = function(data) {
-      console.log('📥 Datos recibidos del backend:', data); // <--- NUEVO
-
+      console.log('📥 Datos recibidos del backend:', data);
+      
       if (!Array.isArray(data)) {
         console.error('Los datos no son un array:', data);
         document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar los inmuebles.</div>';
@@ -183,7 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('panel-info').classList.add('visible');
 
-    // Centrar el mapa en el inmueble (zoom 0.02 = ~2km)
     if (inmueble.lat && inmueble.lon) {
       var lat = parseFloat(inmueble.lat);
       var lon = parseFloat(inmueble.lon);
@@ -203,7 +202,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var iframe = document.getElementById('iframe-mapa');
     
     if (filtroActivo) {
-      // Desactivar filtro y volver a mostrar todos
       iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=-80.95%2C-2.30%2C-79.85%2C-2.10&layer=mapnik';
       mensajeDiv.style.display = 'none';
       btn.innerHTML = '📍 Buscar inmuebles en 10 km';
@@ -226,29 +224,30 @@ document.addEventListener('DOMContentLoaded', function() {
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
         posicionUsuario = { lat: lat, lon: lon };
-
-        console.log('📍 UBICACIÓN DEL USUARIO:', lat, lon);
-
         
-        // Calcular bounding box de 10 km
+        console.log('📍 UBICACIÓN DEL USUARIO:', lat, lon);
+        
         var deltaLat = 10 / 111.0;
         var deltaLon = 10 / (111.0 * Math.cos(lat * Math.PI / 180));
         var bbox = (lon - deltaLon) + ',' + (lat - deltaLat) + ',' + (lon + deltaLon) + ',' + (lat + deltaLat);
         
         iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
         
-        // Filtrar la lista a 10 km
         var inmueblesCercanos = todosLosInmuebles.filter(function(inmueble) {
           var latI = parseFloat(inmueble.lat);
           var lonI = parseFloat(inmueble.lon);
+          
+          console.log('🔍 Inmueble:', inmueble.titulo, '| lat:', inmueble.lat, '| lon:', inmueble.lon, '| latI:', latI, '| lonI:', lonI, '| esNaN:', isNaN(latI), isNaN(lonI));
+          
           if (isNaN(latI) || isNaN(lonI)) return false;
           var distancia = calcularDistancia(lat, lon, latI, lonI);
+          console.log('📏 Distancia a', inmueble.titulo, ':', distancia, 'km');
           return distancia <= 10;
         });
-
+        
         console.log('📊 Total inmuebles:', todosLosInmuebles.length);
-        console.log('📊 Inmuebles en 10 km:', inmueblesCercanos.length); // <--- NUEVO
-        console.log('📊 Inmuebles cercanos:', inmueblesCercanos); // <--- NUEVO
+        console.log('📊 Inmuebles en 10 km:', inmueblesCercanos.length);
+        console.log('📊 Inmuebles cercanos:', inmueblesCercanos);
         
         mostrarLista(inmueblesCercanos);
         
@@ -287,6 +286,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
-
 </body>
 </html>
