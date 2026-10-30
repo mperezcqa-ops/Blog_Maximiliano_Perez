@@ -230,6 +230,8 @@ document.addEventListener('DOMContentLoaded', function() {
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
         posicionUsuario = { lat: lat, lon: lon };
+        console.log('📍 UBICACIÓN DEL USUARIO:', lat, lon);
+
         
         var deltaLat = 15 / 111.0;
         var deltaLon = 15 / (111.0 * Math.cos(lat * Math.PI / 180));
