@@ -46,7 +46,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 
 <div class="mapa-header">
   <h1>🗺️ Directorio de Inmuebles y Servicios</h1>
-  <p>Encuentra propiedades y servicios cerca de ti (Radio de 10 km)</p>
+  <p>Encuentra propiedades y servicios cerca de ti (Radio de 15 km)</p>
 </div>
 
 <div class="mapa-controles">
@@ -57,7 +57,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
     <option value="Servicio">Servicio</option>
     <option value="Producto">Producto</option>
   </select>
-  <button id="btn-cerca-de-mi" class="btn-filtro">📍 Buscar inmuebles en 10 km</button>
+  <button id="btn-cerca-de-mi" class="btn-filtro">📍 Buscar inmuebles en 15 km</button>
   <div id="mensaje-filtro" class="mensaje-filtro"></div>
 </div>
 
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ============================================
-  // BOTÓN "BUSCAR EN 10 KM"
+  // BOTÓN "BUSCAR EN 15 KM"
   // ============================================
   document.getElementById('btn-cerca-de-mi').addEventListener('click', function() {
     var btn = this;
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (filtroActivo) {
       iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=-80.95%2C-2.30%2C-79.85%2C-2.10&layer=mapnik';
       mensajeDiv.style.display = 'none';
-      btn.innerHTML = '📍 Buscar inmuebles en 10 km';
+      btn.innerHTML = '📍 Buscar inmuebles en 15 km';
       btn.classList.remove('activo');
       filtroActivo = false;
       mostrarLista(todosLosInmuebles);
@@ -242,17 +242,17 @@ document.addEventListener('DOMContentLoaded', function() {
           if (isNaN(latI) || isNaN(lonI)) return false;
           var distancia = calcularDistancia(lat, lon, latI, lonI);
           console.log('📏 Distancia a', inmueble.titulo, ':', distancia, 'km');
-          return distancia <= 10;
+          return distancia <= 15;
         });
         
         console.log('📊 Total inmuebles:', todosLosInmuebles.length);
-        console.log('📊 Inmuebles en 10 km:', inmueblesCercanos.length);
+        console.log('📊 Inmuebles en 15 km:', inmueblesCercanos.length);
         console.log('📊 Inmuebles cercanos:', inmueblesCercanos);
         
         mostrarLista(inmueblesCercanos);
         
         mensajeDiv.style.display = 'block';
-        mensajeDiv.innerHTML = '📍 Mostrando ' + inmueblesCercanos.length + ' inmuebles en un radio de 10 km (Ciudad de 15 minutos).';
+        mensajeDiv.innerHTML = '📍 Mostrando ' + inmueblesCercanos.length + ' inmuebles en un radio de 15 km (Ciudad de 15 minutos).';
         
         btn.classList.add('activo');
         btn.innerHTML = '❌ Quitar filtro';
@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
       function(error) {
         console.error('Error de geolocalización:', error);
         alert('No se pudo obtener tu ubicación. Permite el acceso en tu navegador.');
-        btn.innerHTML = '📍 Buscar inmuebles en 10 km';
+        btn.innerHTML = '📍 Buscar inmuebles en 15 km';
         btn.disabled = false;
       },
       { enableHighAccuracy: true, timeout: 10000 }
