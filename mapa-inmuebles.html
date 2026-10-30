@@ -136,6 +136,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // MOSTRAR LISTA
   // ============================================
   function mostrarLista(inmuebles) {
+    console.log('📋 Mostrando lista de inmuebles:', inmuebles.length, inmuebles); // <--- NUEVO
+
     var listaDiv = document.getElementById('lista-contenido');
     listaDiv.innerHTML = '';
     
