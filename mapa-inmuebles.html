@@ -33,7 +33,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 .panel-info .precio { font-size: 1.5rem; color: #c9a961; font-weight: 700; margin-bottom: 1rem; }
 .panel-info img { max-width: 100%; border-radius: 8px; margin-bottom: 1rem; }
 .panel-info p { color: #333; line-height: 1.6; }
-.panel-info .btn-contacto { display: inline-block; background: #1a3a5c; color: white; text-align: center; padding: 0.8rem 1.5rem; border-radius: 6px; text-decoration: none; margin-top: 1rem; font-weight: 600; }
+.panel-info .btn-contacto { display: inline-block; background: #1a3a5c; color: white; text-align: center; padding: 0.8rem 1.5rem; border-radius: 6px; text-decoration: none; margin-top: 1rem; font-weight: 600; margin-right: 0.5rem; }
 .panel-info .btn-contacto:hover { background: #c9a961; color: #1a3a5c; }
 .panel-info .btn-cerrar { background: #ccc; color: #333; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; margin-bottom: 1rem; }
 .panel-info .btn-cerrar:hover { background: #999; }
@@ -74,7 +74,10 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
   <p><strong>Tipo:</strong> <span id="info-tipo"></span></p>
   <p><strong>Contacto:</strong> <span id="info-contacto"></span></p>
   <p><strong>Teléfono:</strong> <span id="info-telefono"></span></p>
+  
   <a id="info-whatsapp" href="#" target="_blank" class="btn-contacto">📱 Contactar por WhatsApp</a>
+  <!-- NUEVO: Botón de Google Maps -->
+  <a id="info-google-maps" href="#" target="_blank" class="btn-contacto" style="background: #4285F4; display: none;">📍 Abrir en Google Maps</a>
 </div>
 
 <div id="lista-inmuebles" class="lista-inmuebles">
@@ -89,7 +92,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
 
-    var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxd0tYPErJ0o6cqD-0bM8d03fBe_vKWv2imgw4E1fLXPbHs3bDe-cubNHlv7-1ShI-b/exec";
+    var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpgKWbdwmtmYLj1z3AXm3_kUES-bLNOJSIznGT_XSNVX-PXbTHvEfnFc6b1cMOuopJRA/exec";
 
     var todosLosInmuebles = [];
     var datosCargados = false;
@@ -102,19 +105,16 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
       var callbackName = 'jsonpCallback_' + Date.now();
       
       window[callbackName] = function(data) {
-        console.log('📥 Datos recibidos del backend:', data);
-        
         if (!Array.isArray(data)) {
           console.error('Los datos no son un array:', data);
           document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar los inmuebles.</div>';
           return;
         }
         
-        // FORZAR CONVERSIÓN A DECIMAL EN EL FRONTEND
+        // FORZAR CONVERSIÓN A DECIMAL EN EL FRONTEND (por seguridad)
         data.forEach(function(inmueble) {
           inmueble.lat = parseFloat(inmueble.lat);
           inmueble.lon = parseFloat(inmueble.lon);
-          console.log('🔍 Inmueble convertido:', inmueble.titulo, '| lat:', inmueble.lat, '| lon:', inmueble.lon);
         });
         
         todosLosInmuebles = data;
@@ -167,7 +167,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
     }
 
     // ============================================
-    // MOSTRAR INFO
+    // MOSTRAR INFO Y CENTRAR MAPA
     // ============================================
     function mostrarInfo(inmueble) {
       document.getElementById('info-titulo').innerText = inmueble.titulo || 'Sin título';
@@ -185,6 +185,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
         fotoImg.style.display = 'none';
       }
       
+      // Botón WhatsApp
       var telefonoTexto = String(inmueble.telefono || '').replace(/\D/g, '');
       if (telefonoTexto) {
         document.getElementById('info-whatsapp').href = 'https://wa.me/' + telefonoTexto;
@@ -192,13 +193,25 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
       } else {
         document.getElementById('info-whatsapp').style.display = 'none';
       }
-      
-      document.getElementById('panel-info').classList.add('visible');
 
+      // Botón Google Maps
       if (inmueble.lat && inmueble.lon) {
         var lat = parseFloat(inmueble.lat);
         var lon = parseFloat(inmueble.lon);
-        var delta = 0.02;
+        document.getElementById('info-google-maps').href = 
+          'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lon;
+        document.getElementById('info-google-maps').style.display = 'inline-block';
+      } else {
+        document.getElementById('info-google-maps').style.display = 'none';
+      }
+      
+      document.getElementById('panel-info').classList.add('visible');
+
+      // Centrar el mapa en el inmueble (Zoom más cercano)
+      if (inmueble.lat && inmueble.lon) {
+        var lat = parseFloat(inmueble.lat);
+        var lon = parseFloat(inmueble.lon);
+        var delta = 0.005; // Zoom más cercano
         var bbox = (lon - delta) + ',' + (lat - delta) + ',' + (lon + delta) + ',' + (lat + delta);
         document.getElementById('iframe-mapa').src = 
           'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
@@ -241,8 +254,6 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
           var lat = position.coords.latitude;
           var lon = position.coords.longitude;
           
-          console.log('📍 UBICACIÓN DEL USUARIO:', lat, lon);
-          
           var deltaLat = 15 / 111.0;
           var deltaLon = 15 / (111.0 * Math.cos(lat * Math.PI / 180));
           var bbox = (lon - deltaLon) + ',' + (lat - deltaLat) + ',' + (lon + deltaLon) + ',' + (lat + deltaLat);
@@ -254,7 +265,6 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
             var lonI = parseFloat(inmueble.lon);
             if (isNaN(latI) || isNaN(lonI)) return false;
             var distancia = calcularDistancia(lat, lon, latI, lonI);
-            console.log('📏 Distancia a', inmueble.titulo, ':', distancia, 'km');
             return distancia <= 15;
           });
           
@@ -281,25 +291,22 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
     // ============================================
     // CALCULAR DISTANCIA (HAVERSINE CORREGIDA)
     // ============================================
-
     function calcularDistancia(lat1, lon1, lat2, lon2) {
-      // Convertir a números
-      var la1 = Number(lat1);
-      var lo1 = Number(lon1);
-      var la2 = Number(lat2);
-      var lo2 = Number(lon2);
+      var rad = Math.PI / 180;
+      var lat1Rad = lat1 * rad;
+      var lon1Rad = lon1 * rad;
+      var lat2Rad = lat2 * rad;
+      var lon2Rad = lon2 * rad;
       
-      // LOG DETALLADO
-      console.log('🧮 calcularDistancia recibió:', {la1, lo1, la2, lo2});
+      var dLat = lat2Rad - lat1Rad;
+      var dLon = lon2Rad - lon1Rad;
       
-      // Distancia euclidiana simple
-      var dLat = (la2 - la1) * 111.0;
-      var dLon = (lo2 - lo1) * 111.0 * Math.cos(la1 * Math.PI / 180);
-      var distancia = Math.sqrt(dLat * dLat + dLon * dLon);
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
       
-      console.log('🧮 Cálculo:', {dLat, dLon, distancia});
-      
-      return distancia;
+      return 6371 * c;
     }
 
     // Iniciar

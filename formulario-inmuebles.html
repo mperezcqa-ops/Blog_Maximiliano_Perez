@@ -256,6 +256,24 @@ document.addEventListener('DOMContentLoaded', function() {
   var mapa = L.map('mapa-seleccion').setView([-2.1709, -79.9223], 12);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(mapa);
   var marcador = null;
+  
+    // Centrar el mapa en la ubicación del usuario al cargar
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        mapa.setView([lat, lon], 14); // Zoom 14 para ver la ciudad
+        // Opcional: Colocar un marcador en la ubicación del usuario
+        L.marker([lat, lon]).addTo(mapa).bindPopup('Tu ubicación actual').openPopup();
+      },
+      function(error) {
+        console.log('El usuario no permitió la ubicación. Usando vista por defecto.');
+      },
+      { enableHighAccuracy: true, timeout: 5000 }
+    );
+  }
+  
   mapa.on('click', function(e) {
     var lat = e.latlng.lat, lon = e.latlng.lng;
     if (marcador) { marcador.setLatLng(e.latlng); } else { marcador = L.marker(e.latlng).addTo(mapa); }
