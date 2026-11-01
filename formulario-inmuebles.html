@@ -258,14 +258,33 @@ document.addEventListener('DOMContentLoaded', function() {
   var marcador = null;
   
     // Centrar el mapa en la ubicación del usuario al cargar
+
+  // Centrar el mapa en la ubicación del usuario al cargar
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       function(position) {
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
-        mapa.setView([lat, lon], 14); // Zoom 14 para ver la ciudad
-        // Opcional: Colocar un marcador en la ubicación del usuario
-        L.marker([lat, lon]).addTo(mapa).bindPopup('Tu ubicación actual').openPopup();
+        
+        // Centrar el mapa en la ubicación del usuario
+        mapa.setView([lat, lon], 14);
+        
+        // Guardar la ubicación del usuario en los campos ocultos
+        document.getElementById('lat').value = lat.toFixed(6);
+        document.getElementById('lon').value = lon.toFixed(6);
+        document.getElementById('coords-mostradas').innerText = '📍 Ubicación seleccionada: ' + lat.toFixed(4) + ', ' + lon.toFixed(4);
+        
+        // Crear el marcador en la ubicación del usuario y asignarlo a la variable global
+        marcador = L.marker([lat, lon]).addTo(mapa);
+        marcador.bindPopup('Tu ubicación actual').openPopup();
+        
+        // Opcional: Agregar un círculo de precisión alrededor de la ubicación
+        L.circle([lat, lon], {
+          color: '#1a3a5c',
+          fillColor: '#1a3a5c',
+          fillOpacity: 0.1,
+          radius: 100 // 100 metros de radio
+        }).addTo(mapa);
       },
       function(error) {
         console.log('El usuario no permitió la ubicación. Usando vista por defecto.');
@@ -273,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
       { enableHighAccuracy: true, timeout: 5000 }
     );
   }
-  
+
   mapa.on('click', function(e) {
     var lat = e.latlng.lat, lon = e.latlng.lng;
     if (marcador) { marcador.setLatLng(e.latlng); } else { marcador = L.marker(e.latlng).addTo(mapa); }
