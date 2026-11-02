@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registrar Inmueble - Visible Bienes Raíces</title>
+<title>Registrar Publicación - Visible</title>
 
 <style>
 .form-inmuebles { max-width: 900px; margin: 0 auto; padding: 1rem; }
@@ -55,6 +55,7 @@
 <option value="Renta">Renta</option>
 <option value="Servicio">Servicio</option>
 <option value="Producto">Producto</option>
+<option value="Negocio">Negocio</option>
 </select>
 </div>
 <div class="form-group">
@@ -73,7 +74,7 @@
 <input type="number" id="precio" name="precio" required placeholder="Ej: 150000">
 </div>
 <div class="form-group">
-<label>Fotos del Inmueble, Servicio, Prodcto *</label>
+<label>Fotos del Inmueble, Servicio, Producto, Negocio *</label>
 <button type="button" id="btn-subir-foto" disabled>📷 Primero selecciona un plan</button>
 <input type="hidden" id="fotos_url" name="fotos_url" required>
 <div id="preview-fotos" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
@@ -89,17 +90,14 @@
 </fieldset>
 
 <fieldset>
-<fieldset>
 <legend>📍 Ubicación</legend>
 <div style="background: #e8f4fd; padding: 1rem; border-radius: 6px; border-left: 4px solid #4285F4; margin-bottom: 1rem;">
-
 <p style="margin: 0; color: #1a3a5c; font-size: 0.95rem;">
     <strong>💡 Consejo:</strong> Si tu inmueble, negocio, producto o servicio está <strong>en tu ubicación actual</strong> (donde estás parado ahora), puedes continuar directamente con el formulario. 
     <br><br>
     Si está <strong>en otro lugar</strong>, usa el buscador de direcciones o haz clic en el mapa para seleccionar la ubicación exacta.
 </p>
 </div>
-
 
 <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
   <input type="text" id="buscador-direccion" placeholder="Ej: Av. 9 de Octubre y Malecón, Guayaquil" style="flex: 1;">
@@ -266,8 +264,6 @@ document.addEventListener('DOMContentLoaded', function() {
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(mapa);
   var marcador = null;
   
-    // Centrar el mapa en la ubicación del usuario al cargar
-
   // Centrar el mapa en la ubicación del usuario al cargar
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -275,24 +271,20 @@ document.addEventListener('DOMContentLoaded', function() {
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
         
-        // Centrar el mapa en la ubicación del usuario
         mapa.setView([lat, lon], 14);
         
-        // Guardar la ubicación del usuario en los campos ocultos
         document.getElementById('lat').value = lat.toFixed(6);
         document.getElementById('lon').value = lon.toFixed(6);
         document.getElementById('coords-mostradas').innerText = '📍 Ubicación seleccionada: ' + lat.toFixed(4) + ', ' + lon.toFixed(4);
         
-        // Crear el marcador en la ubicación del usuario y asignarlo a la variable global
         marcador = L.marker([lat, lon]).addTo(mapa);
         marcador.bindPopup('Tu ubicación actual').openPopup();
         
-        // Opcional: Agregar un círculo de precisión alrededor de la ubicación
         L.circle([lat, lon], {
           color: '#1a3a5c',
           fillColor: '#1a3a5c',
           fillOpacity: 0.1,
-          radius: 100 // 100 metros de radio
+          radius: 100
         }).addTo(mapa);
       },
       function(error) {
