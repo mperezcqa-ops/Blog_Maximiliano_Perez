@@ -49,14 +49,18 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 </div>
 
 <div class="mapa-controles">
+
   <select id="filtro-tipo">
     <option value="Todos">Todos los tipos</option>
     <option value="Venta">Venta</option>
     <option value="Renta">Renta</option>
     <option value="Servicio">Servicio</option>
     <option value="Producto">Producto</option>
+    <option value="Negocio">Negocio</option>  <!-- NUEVA LÍNEA -->
   </select>
-  <button id="btn-cerca-de-mi" class="btn-filtro" disabled>⏳ Cargando inmuebles...</button>
+
+<button id="btn-cerca-de-mi" class="btn-filtro" disabled>⏳ Cargando publicaciones...</button>
+
   <div id="mensaje-filtro" class="mensaje-filtro"></div>
 </div>
 
@@ -81,7 +85,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 </div>
 
 <div id="lista-inmuebles" class="lista-inmuebles">
-  <h3>Inmuebles y Servicios disponibles</h3>
+  <h3>Publicaciones disponibles</h3>
   <div id="lista-contenido">
     <div class="no-inmuebles">Cargando inmuebles...</div>
   </div>
@@ -122,7 +126,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
         
         var btn = document.getElementById('btn-cerca-de-mi');
         btn.disabled = false;
-        btn.innerHTML = '📍 Buscar inmuebles en 15 km';
+        btn.innerHTML = '📍 Buscar publicaciones en 15 km';
         
         mostrarLista(data);
         delete window[callbackName];
@@ -234,7 +238,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
       if (filtroActivo) {
         iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=-80.95%2C-2.30%2C-79.85%2C-2.10&layer=mapnik';
         mensajeDiv.style.display = 'none';
-        btn.innerHTML = '📍 Buscar inmuebles en 15 km';
+        btn.innerHTML = '📍 Buscar publicaciones en 15 km';
         btn.classList.remove('activo');
         filtroActivo = false;
         mostrarLista(todosLosInmuebles);
