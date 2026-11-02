@@ -43,7 +43,7 @@
 
 <div class="form-group">
 <label for="titulo">Título del Anuncio *</label>
-<input type="text" id="titulo" name="titulo" required placeholder="Ej: Casa en venta en Samborondón">
+<input type="text" id="titulo" name="titulo" required placeholder="Ej: Casa en venta, Servicios Profesionales, Productos ...">
 </div>
 
 <div class="form-row">
@@ -92,11 +92,12 @@
 <fieldset>
 <legend>📍 Ubicación</legend>
 <div style="background: #e8f4fd; padding: 1rem; border-radius: 6px; border-left: 4px solid #4285F4; margin-bottom: 1rem;">
-  <p style="margin: 0; color: #1a3a5c; font-size: 0.95rem;">
-    <strong>💡 Consejo:</strong> Si el inmueble está <strong>en tu ubicación actual</strong> (donde estás parado ahora), puedes continuar directamente con el formulario. 
+
+<p style="margin: 0; color: #1a3a5c; font-size: 0.95rem;">
+    <strong>💡 Consejo:</strong> Si tu inmueble, negocio, producto o servicio está <strong>en tu ubicación actual</strong> (donde estás parado ahora), puedes continuar directamente con el formulario. 
     <br><br>
-    Si el inmueble está <strong>en otro lugar</strong>, usa el buscador de direcciones o haz clic en el mapa para seleccionar la ubicación exacta.
-  </p>
+    Si está <strong>en otro lugar</strong>, usa el buscador de direcciones o haz clic en el mapa para seleccionar la ubicación exacta.
+</p>
 </div>
 
 
@@ -156,7 +157,7 @@ Para completar el registro, <strong>responde a ese correo adjuntando el comproba
 </div>
 </fieldset>
 
-<button type="submit" id="btn-enviar-inmueble" class="btn-enviar">🏠 Registrar mi Inmueble</button>
+<button type="submit" id="btn-enviar-inmueble" class="btn-enviar">🏠 Registrar mi Publicación</button>
 <div id="form-inmuebles-mensaje" class="form-mensaje"></div>
 
 </form>
@@ -367,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
       planActual = null;
     })
     .catch(function(error) { mensajeDiv.className = 'form-mensaje error'; mensajeDiv.innerHTML = '❌ Error al enviar.'; console.error(error); })
-    .finally(function() { btnEnviar.disabled = false; btnEnviar.textContent = '🏠 Registrar mi Inmueble'; });
+    .finally(function() { btnEnviar.disabled = false; btnEnviar.textContent = '🏠 Registrar mi Publicación'; });
   });
 
 });
