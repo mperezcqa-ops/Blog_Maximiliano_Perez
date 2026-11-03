@@ -49,18 +49,15 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
 </div>
 
 <div class="mapa-controles">
-
   <select id="filtro-tipo">
     <option value="Todos">Todos los tipos</option>
     <option value="Venta">Venta</option>
     <option value="Renta">Renta</option>
     <option value="Servicio">Servicio</option>
     <option value="Producto">Producto</option>
-    <option value="Negocio">Negocio</option>  <!-- NUEVA LÍNEA -->
+    <option value="Negocio">Negocio</option>
   </select>
-
-<button id="btn-cerca-de-mi" class="btn-filtro" disabled>⏳ Cargando publicaciones...</button>
-
+  <button id="btn-cerca-de-mi" class="btn-filtro" disabled>⏳ Cargando publicaciones...</button>
   <div id="mensaje-filtro" class="mensaje-filtro"></div>
 </div>
 
@@ -80,23 +77,21 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
   <p><strong>Teléfono:</strong> <span id="info-telefono"></span></p>
   
   <a id="info-whatsapp" href="#" target="_blank" class="btn-contacto">📱 Contactar por WhatsApp</a>
-  <!-- NUEVO: Botón de Google Maps -->
   <a id="info-google-maps" href="#" target="_blank" class="btn-contacto" style="background: #4285F4; display: none;">📍 Abrir en Google Maps</a>
 </div>
 
 <div id="lista-inmuebles" class="lista-inmuebles">
   <h3>Publicaciones disponibles</h3>
   <div id="lista-contenido">
-    <div class="no-inmuebles">Cargando inmuebles...</div>
+    <div class="no-inmuebles">Cargando publicaciones...</div>
   </div>
 </div>
 
 <script>
-// Envolvemos todo en una función autoejecutable para evitar contaminación global
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
 
-    var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxd0tYPErJ0o6cqD-0bM8d03fBe_vKWv2imgw4E1fLXPbHs3bDe-cubNHlv7-1ShI-b/exec";
+    var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpgKWbdwmtmYLj1z3AXm3_kUES-bLNOJSIznGT_XSNVX-PXbTHvEfnFc6b1cMOuopJRA/exec";
 
     var todosLosInmuebles = [];
     var datosCargados = false;
@@ -111,11 +106,10 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
       window[callbackName] = function(data) {
         if (!Array.isArray(data)) {
           console.error('Los datos no son un array:', data);
-          document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar los inmuebles.</div>';
+          document.getElementById('lista-contenido').innerHTML = '<div class="no-inmuebles">Error al cargar las publicaciones.</div>';
           return;
         }
         
-        // FORZAR CONVERSIÓN A DECIMAL EN EL FRONTEND (por seguridad)
         data.forEach(function(inmueble) {
           inmueble.lat = parseFloat(inmueble.lat);
           inmueble.lon = parseFloat(inmueble.lon);
@@ -154,7 +148,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
       listaDiv.innerHTML = '';
       
       if (inmuebles.length === 0) {
-        listaDiv.innerHTML = '<div class="no-inmuebles">No hay inmuebles disponibles en este radio.</div>';
+        listaDiv.innerHTML = '<div class="no-inmuebles">No hay publicaciones disponibles en este radio.</div>';
         return;
       }
       
@@ -189,7 +183,6 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
         fotoImg.style.display = 'none';
       }
       
-      // Botón WhatsApp
       var telefonoTexto = String(inmueble.telefono || '').replace(/\D/g, '');
       if (telefonoTexto) {
         document.getElementById('info-whatsapp').href = 'https://wa.me/' + telefonoTexto;
@@ -198,7 +191,6 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
         document.getElementById('info-whatsapp').style.display = 'none';
       }
 
-      // Botón Google Maps
       if (inmueble.lat && inmueble.lon) {
         var lat = parseFloat(inmueble.lat);
         var lon = parseFloat(inmueble.lon);
@@ -211,16 +203,33 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
       
       document.getElementById('panel-info').classList.add('visible');
 
-      // Centrar el mapa en el inmueble (Zoom más cercano)
       if (inmueble.lat && inmueble.lon) {
         var lat = parseFloat(inmueble.lat);
         var lon = parseFloat(inmueble.lon);
-        var delta = 0.005; // Zoom más cercano
+        var delta = 0.005;
         var bbox = (lon - delta) + ',' + (lat - delta) + ',' + (lon + delta) + ',' + (lat + delta);
         document.getElementById('iframe-mapa').src = 
           'https://www.openstreetmap.org/export/embed.html?bbox=' + encodeURIComponent(bbox) + '&layer=mapnik&marker=' + lat + ',' + lon;
       }
     }
+
+    // ============================================
+    // FILTRO POR TIPO (CORREGIDO)
+    // ============================================
+    document.getElementById('filtro-tipo').addEventListener('change', function() {
+      var tipoSeleccionado = this.value;
+      var inmueblesFiltrados;
+      
+      if (tipoSeleccionado === 'Todos') {
+        inmueblesFiltrados = todosLosInmuebles;
+      } else {
+        inmueblesFiltrados = todosLosInmuebles.filter(function(inmueble) {
+          return inmueble.tipo && inmueble.tipo.toLowerCase() === tipoSeleccionado.toLowerCase();
+        });
+      }
+      
+      mostrarLista(inmueblesFiltrados);
+    });
 
     // ============================================
     // BOTÓN "BUSCAR EN 15 KM"
@@ -231,7 +240,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
       var iframe = document.getElementById('iframe-mapa');
       
       if (!datosCargados) {
-        alert('Los inmuebles aún se están cargando. Espera un momento.');
+        alert('Las publicaciones aún se están cargando. Espera un momento.');
         return;
       }
       
@@ -275,7 +284,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
           mostrarLista(inmueblesCercanos);
           
           mensajeDiv.style.display = 'block';
-          mensajeDiv.innerHTML = '📍 Mostrando ' + inmueblesCercanos.length + ' inmuebles en un radio de 15 km (Ciudad de 15 minutos).';
+          mensajeDiv.innerHTML = '📍 Mostrando ' + inmueblesCercanos.length + ' publicaciones en un radio de 15 km (Ciudad de 15 minutos).';
           
           btn.classList.add('activo');
           btn.innerHTML = '❌ Quitar filtro';
@@ -285,7 +294,7 @@ body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "S
         function(error) {
           console.error('Error de geolocalización:', error);
           alert('No se pudo obtener tu ubicación. Permite el acceso en tu navegador.');
-          btn.innerHTML = '📍 Buscar inmuebles en 15 km';
+          btn.innerHTML = '📍 Buscar publicaciones en 15 km';
           btn.disabled = false;
         },
         { enableHighAccuracy: true, timeout: 10000 }
