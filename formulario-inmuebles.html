@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('coords-mostradas').innerText = '📍 Ubicación seleccionada: ' + lat.toFixed(4) + ', ' + lon.toFixed(4);
         
         marcador = L.marker([lat, lon]).addTo(mapa);
-        marcador.bindPopup('Tu ubicación actual').openPopup();
+        marcador.bindPopup('Ubicación del anuncio').openPopup();
         
         L.circle([lat, lon], {
           color: '#1a3a5c',
