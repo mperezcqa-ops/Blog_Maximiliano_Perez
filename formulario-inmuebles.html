@@ -213,18 +213,15 @@ document.addEventListener('DOMContentLoaded', function() {
     infoFotos.innerText = 'Puedes subir hasta ' + maxFotos + ' foto' + (maxFotos > 1 ? 's' : '') + '.';
   }
 
+  // CORREGIDO: Ya no se busca 'monto-plan' porque ese elemento fue eliminado del HTML
   document.getElementById('plan').addEventListener('change', function() {
     var plan = this.value;
-    var montoSpan = document.getElementById('monto-plan');
     
     if (plan === 'Basico') {
-      montoSpan.innerText = '$2 (Básico)';
       configurarWidget(plan);
     } else if (plan === 'Pro') {
-      montoSpan.innerText = '$3 (Pro)';
       configurarWidget(plan);
     } else {
-      montoSpan.innerText = 'Selecciona un plan';
       document.getElementById('btn-subir-foto').disabled = true;
       document.getElementById('btn-subir-foto').innerHTML = '📷 Primero selecciona un plan';
       document.getElementById('info-fotos').innerText = 'Selecciona un plan para habilitar la subida de fotos.';
