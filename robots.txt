@@ -1,1 +1,1 @@
-Sitemap: https://mperezcqa-ops.github.io/Blog_Maximiliano_Perez/sitemap.xml
+Sitemap: https://visible.ec/sitemap.xml
